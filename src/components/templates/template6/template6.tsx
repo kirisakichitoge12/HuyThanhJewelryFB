@@ -433,71 +433,87 @@ const Template6: React.FC<TemplateProps> = (props) => {
   }, [location.pathname]);
 
 
-     const fetchDefaultData = useCallback(async () => {
-                try {
-                setLoading(true);
-                const res = await axios.get(`${API_BASE_URL}/api/admin/documents/6`);
-                if (res.status === 200 && res.data.json_data) {
-                    const parsedData = typeof res.data.json_data === 'string'
-                    ? JSON.parse(res.data.json_data)
-                    : res.data.json_data;
-            
-                    const defaultSections = Array.isArray(parsedData)
-                    ? parsedData
-                    : Array.isArray(parsedData?.data)
-                        ? parsedData.data
-                        : [];
-            
-                    setAvailableValuesCoBa(defaultSections);
-                    // Chỉ set sections nếu sections hiện tại rỗng
-                    if (sections.length === 0) {
-                    setSections(defaultSections);
-                    }
-                } else {
-                    // Nếu API không trả về dữ liệu hợp lệ, sử dụng giá trị mặc định từ config
-                    setAvailableValuesCoBa(defaultValuesCoBa);
-                    if (sections.length === 0) {
-                    setSections(defaultValuesCoBa);
-                    }
-                }
-                } catch (error) {
-                console.error('Lỗi khi lấy dữ liệu mặc định:', error);
-                // toast.error('Không thể lấy dữ liệu từ API, sử dụng dữ liệu mặc định.');
-                // Sử dụng dữ liệu mặc định từ config nếu API thất bại
-                setAvailableValuesCoBa(defaultValuesCoBa);
-                if (sections.length === 0) {
-                    setSections(defaultValuesCoBa);
-                }
-                } finally {
-                setLoading(false);
-                }
-      }, [sections.length]);
-      
-    //  useEffect(() => {
-    //     if (availableValuesCoBa.length === 0 || availableValuesCoBa === defaultValuesCoBa) {
-    //       fetchDefaultData();
-    //     }
-    //   }, [fetchDefaultData, availableValuesCoBa]);
-
-  useEffect(() => {
+  const fetchDefaultData = useCallback(async () => {
+    try {
+      setLoading(true);
+  
+      // Tạo delay tối thiểu (ví dụ: 1500ms)
+      const minDelay = new Promise(resolve => setTimeout(resolve, 1500));
+  
+      // Gọi API và delay song song
+      const [res] = await Promise.all([
+        axios.get(`${API_BASE_URL}/api/admin/documents/6`),
+        minDelay
+      ]);
+  
+      if (res.status === 200 && res.data.json_data) {
+        const parsedData = typeof res.data.json_data === 'string'
+          ? JSON.parse(res.data.json_data)
+          : res.data.json_data;
+  
+        const defaultSections = Array.isArray(parsedData)
+          ? parsedData
+          : Array.isArray(parsedData?.data)
+            ? parsedData.data
+            : [];
+  
+        setAvailableValuesCoBa(defaultSections);
+        if (sections.length === 0) {
+          setSections(defaultSections);
+        }
+      } else {
+        setAvailableValuesCoBa(defaultValuesCoBa);
+        if (sections.length === 0) {
+          setSections(defaultValuesCoBa);
+        }
+      }
+    } catch (error) {
+      console.error('Lỗi khi lấy dữ liệu mặc định:', error);
+      setAvailableValuesCoBa(defaultValuesCoBa);
+      if (sections.length === 0) {
+        setSections(defaultValuesCoBa);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [sections.length]);
+  
+   useEffect(() => {
     const checkTemplate = async () => {
       if (user) {
-        const templateId = Number(id) ? id : "null";
-        const response = await axios.get(
-          `${API_BASE_URL}/api/replacement/${user.id}/${templateId}`
-        );
-        const isCheck = response.data.isNewTemplate;
-
-        // Nếu isCheck = true => Mở modal
-        if (isCheck) {
-          setShowReplaceModal(true);
-        }
-        if (response.data.isTemplateold.id_template == idTemplate) {
-          navigate(`/theme/${response.data.isTemplateold.id}`);
+        setLoading(true); // Bật loading nếu muốn
+  
+        const templateId = Number(id) ? id : 'null';
+  
+        const delay = new Promise(resolve => setTimeout(resolve, 1800)); // Delay 1.5s
+  
+        try {
+          const [response] = await Promise.all([
+            axios.get(`${API_BASE_URL}/api/replacement/${user.id}/${templateId}`),
+            delay
+          ]);
+  
+          const isCheck = response.data.isNewTemplate;
+  
+          // Mở modal nếu isNewTemplate = true
+          if (isCheck) {
+            setShowReplaceModal(true);
+          }
+  
+          // Nếu là template cũ thì điều hướng
+          if (response.data.isTemplateold.id_template == idTemplate) {
+            navigate(`/theme/${response.data.isTemplateold.id}`);
+          }
+  
+        } catch (error) {
+          console.error("Lỗi khi kiểm tra template:", error);
+          // Bạn có thể hiển thị toast lỗi hoặc modal fallback nếu cần
+        } finally {
+          setLoading(false); // Tắt loading sau cùng
         }
       }
     };
-
+  
     checkTemplate();
   }, [user, id]);
   //subdomain
@@ -704,16 +720,16 @@ const Template6: React.FC<TemplateProps> = (props) => {
   // }, []);
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia("(max-width: 640px)"); // Tailwind 'sm'
-    const handleChange = () => {
-      setIsDisabled(mediaQuery.matches);
-      setIsMobileScreen(mediaQuery.matches);
-    };
-    handleChange();
-    mediaQuery.addEventListener("change", handleChange);
-
-    return () => mediaQuery.removeEventListener("change", handleChange);
-  }, []);
+         const mediaQuery = window.matchMedia("(max-width: 640px)"); // Tailwind 'sm'
+         const handleChange = () => {
+             setIsDisabled(mediaQuery.matches);
+             setIsMobileScreen(mediaQuery.matches);
+         }
+         handleChange();
+         mediaQuery.addEventListener("change", handleChange);
+ 
+         return () => mediaQuery.removeEventListener("change", handleChange);
+     }, []);
   // const hiddenComponentTypes = ['MessageSection']; // từ DB
   const [hiddenComponentTypes, setHiddenComponentTypes] = useState<string[]>(
     []

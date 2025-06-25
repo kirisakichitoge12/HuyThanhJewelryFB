@@ -73,33 +73,35 @@ const MessageSection: React.FC<MessageSectionProps> = ({
   };
 
   const fetchMessages = async () => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/api/guest/messages`, {
-        params: { user_id, theme_id },
-      });
+     if(user_id && theme_id) {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/guest/messages`, {
+          params: { user_id, theme_id },
+        });
 
-      const messagesFromApi: MessageProps[] = response.data;
+        const messagesFromApi: MessageProps[] = response.data;
 
-      const defaultMessage: MessageProps = {
-        name: "Huy Thanh Jewelry",
-        content:
-          "Huy Thanh rất vui khi được đồng hành cùng hai bạn trong chặng đường hạnh phúc. Dù sông có đổi núi có dời, chúc hai bạn vẫn một đời thương nhau <3",
-      };
+        const defaultMessage: MessageProps = {
+          name: "Huy Thanh Jewelry",
+          content:
+            "Huy Thanh rất vui khi được đồng hành cùng hai bạn trong chặng đường hạnh phúc. Dù sông có đổi núi có dời, chúc hai bạn vẫn một đời thương nhau <3",
+        };
 
-      const hasDefault = messagesFromApi.some(
-        (msg) =>
-          msg.name === defaultMessage.name &&
-          msg.content === defaultMessage.content
-      );
+        const hasDefault = messagesFromApi.some(
+          (msg) =>
+            msg.name === defaultMessage.name &&
+            msg.content === defaultMessage.content
+        );
 
-      const finalMessages = hasDefault
-        ? messagesFromApi
-        : [defaultMessage, ...messagesFromApi];
+        const finalMessages = hasDefault
+          ? messagesFromApi
+          : [defaultMessage, ...messagesFromApi];
 
-      onSectionChange("messages", finalMessages);
-    } catch (error) {
-      console.error("Lỗi khi tải lời chúc:", error);
-      toast.error("Không thể tải lời chúc. Vui lòng thử lại.");
+        onSectionChange("messages", finalMessages);
+      } catch (error) {
+        console.error("Lỗi khi tải lời chúc:", error);
+        toast.error("Không thể tải lời chúc. Vui lòng thử lại.");
+      }
     }
   };
 
@@ -117,7 +119,7 @@ const MessageSection: React.FC<MessageSectionProps> = ({
       toast.error("Chỉ khách mời mới có thể gửi lời chúc.");
       return;
     }
-
+  if(user_id && theme_id) {
     try {
       await axios.post(`${API_BASE_URL}/api/guest/messages`, {
         ...formData,
@@ -137,6 +139,7 @@ const MessageSection: React.FC<MessageSectionProps> = ({
       console.error("Error sending message:", error);
       toast.error("Gửi lời chúc thất bại. Vui lòng thử lại.");
     }
+  }
   };
 
   const handleReply = async (message: MessageProps) => {
@@ -152,36 +155,37 @@ const MessageSection: React.FC<MessageSectionProps> = ({
       toast.error("Chỉ khách mời mới có thể trả lời.");
       return;
     }
+    if(user_id && theme_id) {
+      try {
+        await axios.post(`${API_BASE_URL}/api/guest/messages`, {
+          user_id,
+          theme_id,
+          name: message.name || "Admin",
+          content: message.content,
+          reply: replyText,
+        });
 
-    try {
-      await axios.post(`${API_BASE_URL}/api/guest/messages`, {
-        user_id,
-        theme_id,
-        name: message.name || "Admin",
-        content: message.content,
-        reply: replyText,
-      });
+        toast.success("Gửi trả lời thành công", {
+          iconTheme: {
+            primary: "rgb(237,131,131)",
+            secondary: "#ffffff",
+          },
+        });
 
-      toast.success("Gửi trả lời thành công", {
-        iconTheme: {
-          primary: "rgb(237,131,131)",
-          secondary: "#ffffff",
-        },
-      });
+        const updatedMessages = messages.map((msg) =>
+          msg === message ? { ...msg, reply: replyText } : msg
+        );
+        onSectionChange("messages", updatedMessages);
 
-      const updatedMessages = messages.map((msg) =>
-        msg === message ? { ...msg, reply: replyText } : msg
-      );
-      onSectionChange("messages", updatedMessages);
-
-      setReplyStates((prev) => ({
-        ...prev,
-        [messageKey]: { isReplying: false, replyText: "" },
-      }));
-      fetchMessages();
-    } catch (error) {
-      console.error("Error sending reply:", error);
-      toast.error("Đã có lỗi khi gửi trả lời.");
+        setReplyStates((prev) => ({
+          ...prev,
+          [messageKey]: { isReplying: false, replyText: "" },
+        }));
+        fetchMessages();
+      } catch (error) {
+        console.error("Error sending reply:", error);
+        toast.error("Đã có lỗi khi gửi trả lời.");
+      }
     }
   };
 

@@ -122,7 +122,7 @@ const Template1: React.FC<TemplateProps>= (props) => {
     ) => {
         // Nếu là albums từ AlbumSection, cập nhật sharedAlbums
         if (name === "albums") {
-            console.log('🔄 Template1 - Updating sharedAlbums:', newValue);
+            console.log('🔄 Template1 - Updating sharedAlbums:', availableValuesCoBa);
             setSharedAlbums(newValue as File[] | string[]);
         }
         
@@ -209,82 +209,89 @@ const Template1: React.FC<TemplateProps>= (props) => {
       
         return null; // hoặc giá trị mặc định
       }, [location.pathname]);
-    const fetchDefaultData = useCallback(async () => {
-            try {
-            setLoading(true);
-            const res = await axios.get(`${API_BASE_URL}/api/admin/documents/2`);
-            if (res.status === 200 && res.data.json_data) {
-                const parsedData = typeof res.data.json_data === 'string'
-                ? JSON.parse(res.data.json_data)
-                : res.data.json_data;
-        
-                const defaultSections = Array.isArray(parsedData)
-                ? parsedData
-                : Array.isArray(parsedData?.data)
-                    ? parsedData.data
-                    : [];
-        
-                setAvailableValuesCoBa(defaultSections);
-                // Chỉ set sections nếu sections hiện tại rỗng
-                if (sections.length === 0) {
-                setSections(defaultSections);
-                }
-            } else {
-                // Nếu API không trả về dữ liệu hợp lệ, sử dụng giá trị mặc định từ config
-                setAvailableValuesCoBa(defaultValuesCoBa);
-                if (sections.length === 0) {
-                setSections(defaultValuesCoBa);
-                }
-            }
-            } catch (error) {
-            console.error('Lỗi khi lấy dữ liệu mặc định:', error);
-            // toast.error('Không thể lấy dữ liệu từ API, sử dụng dữ liệu mặc định.');
-            // Sử dụng dữ liệu mặc định từ config nếu API thất bại
-            setAvailableValuesCoBa(defaultValuesCoBa);
-            if (sections.length === 0) {
-                setSections(defaultValuesCoBa);
-            }
-            } finally {
-            setLoading(false);
-            }
+  const fetchDefaultData = useCallback(async () => {
+    try {
+      setLoading(true);
+  
+      // Tạo delay tối thiểu (ví dụ: 1500ms)
+      const minDelay = new Promise(resolve => setTimeout(resolve, 1500));
+  
+      // Gọi API và delay song song
+      const [res] = await Promise.all([
+        axios.get(`${API_BASE_URL}/api/admin/documents/2`),
+        minDelay
+      ]);
+  
+      if (res.status === 200 && res.data.json_data) {
+        const parsedData = typeof res.data.json_data === 'string'
+          ? JSON.parse(res.data.json_data)
+          : res.data.json_data;
+  
+        const defaultSections = Array.isArray(parsedData)
+          ? parsedData
+          : Array.isArray(parsedData?.data)
+            ? parsedData.data
+            : [];
+  
+        setAvailableValuesCoBa(defaultSections);
+        if (sections.length === 0) {
+          setSections(defaultSections);
+        }
+      } else {
+        setAvailableValuesCoBa(defaultValuesCoBa);
+        if (sections.length === 0) {
+          setSections(defaultValuesCoBa);
+        }
+      }
+    } catch (error) {
+      console.error('Lỗi khi lấy dữ liệu mặc định:', error);
+      setAvailableValuesCoBa(defaultValuesCoBa);
+      if (sections.length === 0) {
+        setSections(defaultValuesCoBa);
+      }
+    } finally {
+      setLoading(false);
+    }
   }, [sections.length]);
   
    useEffect(() => {
-    if (availableValuesCoBa.length === 0 || availableValuesCoBa === defaultValuesCoBa) {
-      fetchDefaultData();
-    }
-  }, [fetchDefaultData, availableValuesCoBa]);
+    const checkTemplate = async () => {
+      if (user) {
+        setLoading(true); // Bật loading nếu muốn
   
-
-      useEffect(() => {
-        const checkTemplate = async () => {
-          if (user) {
-            const templateId = Number(id) ? id : 'null';
-            const response = await axios.get(
-              `${API_BASE_URL}/api/replacement/${user.id}/${templateId}`
-            );
-            const isCheck = response.data.isNewTemplate;
-           
-            // Nếu isCheck = true => Mở modal
-            if (isCheck) {
-              setShowReplaceModal(true); //tinhs sao
-            } 
-            if (response.data.isTemplateold.id_template == idTemplate) {
-                
-                navigate(`/theme/${response.data.isTemplateold.id}`);
-              }
-            //   console.log('test id',response.data.isTemplateold.id)
-            // else{
-    
-            // }
+        const templateId = Number(id) ? id : 'null';
+  
+        const delay = new Promise(resolve => setTimeout(resolve, 1800)); // Delay 1.5s
+  
+        try {
+          const [response] = await Promise.all([
+            axios.get(`${API_BASE_URL}/api/replacement/${user.id}/${templateId}`),
+            delay
+          ]);
+  
+          const isCheck = response.data.isNewTemplate;
+  
+          // Mở modal nếu isNewTemplate = true
+          if (isCheck) {
+            setShowReplaceModal(true);
           }
-        };
-    
-        checkTemplate();
-      }, [user, id]);
-        
-
-
+  
+          // Nếu là template cũ thì điều hướng
+          if (response.data.isTemplateold.id_template == idTemplate) {
+            navigate(`/theme/${response.data.isTemplateold.id}`);
+          }
+  
+        } catch (error) {
+          console.error("Lỗi khi kiểm tra template:", error);
+          // Bạn có thể hiển thị toast lỗi hoặc modal fallback nếu cần
+        } finally {
+          setLoading(false); // Tắt loading sau cùng
+        }
+      }
+    };
+  
+    checkTemplate();
+  }, [user, id]);
 
     const handleSave = async () => {
         setLoading(true);
@@ -446,62 +453,131 @@ const Template1: React.FC<TemplateProps>= (props) => {
          
     const resolvedUserId = props.userId ?? (params.userId ? parseInt(params.userId) : undefined);
     const resolvedThemeId = props.themeId ?? (params.themeId ? parseInt(params.themeId) : undefined);
-    useEffect(() => {
-        const fetchData = async () => {
-            try { 
-                let response = null;
-                if(themeId && userId){
-                    response = await axios.get(`${API_BASE_URL}/api/widgets/${userId}/${themeId}`);
-                    setIsDisabled(true);
-                }
-                else if(resolvedUserId && resolvedThemeId){
-                    response = await axios.get(`${API_BASE_URL}/api/widgets/${resolvedUserId}/${resolvedThemeId}`); 
-                    setIsDisabled(true);
-                }
-                else{
-                    if(user){
-                        response = await axios.get(`${API_BASE_URL}/api/widgets/${user.id}/${id}`);
-                        setIsDisabled(false);
-                    }
-                }
-                if(response){
-                    const data = response.data;
-                    const isExist = data.templates_with_widgets;
-                    const dataFontTitle = data.titles_fonts;
-                    const dataFontContent = data.content_fonts;  
-                    // console.log(data);
-                    if(data){
-                        if (isExist) {
-                            // console.log(data);
-                            if (isExist[0].widgets.length > 0) {  
-                                setSections(isExist[0].widgets);
-                            } 
-                        }
-                        if(dataFontTitle ){
-                            const font: FontOption = availableFontsCoBa.find((f: FontOption) => f.name === dataFontTitle) || availableFontsCoBa[0];
-                            setTitleFont(font);
-                        }
-                        if(dataFontContent ){
-                            const font: FontOption = availableFontsCoBa.find((f: FontOption) => f.name === dataFontContent) || availableFontsCoBa[0];
-                            setContentFont(font);
-                        }  
-                        if(data.music){
-                            const result = await fetchMusicLists(); 
-                            if(result && result.length > 0){
-                                const indexTrack = result.findIndex((item: any) => item.id == data.music);
-                                onChooseMusic(result[indexTrack]);
-                            } 
-                        } 
-                    } 
-                }
-            } catch (error: unknown) {
-                // if (error instanceof Error) console.error(error.message);
-                setSections(availableValuesCoBa);
-            }
-        }
-        fetchData(); 
-    }, []);
+    // useEffect(() => {
+    //     const fetchData = async () => {
+    //         try { 
+    //             let response = null;
+    //             if(themeId && userId){
+    //                 response = await axios.get(`${API_BASE_URL}/api/widgets/${userId}/${themeId}`);
+    //                 setIsDisabled(true);
+    //             }
+    //             else if(resolvedUserId && resolvedThemeId){
+    //                 response = await axios.get(`${API_BASE_URL}/api/widgets/${resolvedUserId}/${resolvedThemeId}`); 
+    //                 setIsDisabled(true);
+    //             }
+    //             else{
+    //                 if(user){
+    //                     response = await axios.get(`${API_BASE_URL}/api/widgets/${user.id}/${id}`);
+    //                     setIsDisabled(false);
+    //                 }
+    //             }
+    //             if(response){
+    //                 const data = response.data;
+    //                 const isExist = data.templates_with_widgets;
+    //                 const dataFontTitle = data.titles_fonts;
+    //                 const dataFontContent = data.content_fonts;  
+    //                 // console.log(data);
+    //                 if(data){
+    //                     if (isExist) {
+    //                         // console.log(data);
+    //                         if (isExist[0].widgets.length > 0) {  
+    //                             setSections(isExist[0].widgets);
+    //                         } 
+    //                     }
+    //                     if(dataFontTitle ){
+    //                         const font: FontOption = availableFontsCoBa.find((f: FontOption) => f.name === dataFontTitle) || availableFontsCoBa[0];
+    //                         setTitleFont(font);
+    //                     }
+    //                     if(dataFontContent ){
+    //                         const font: FontOption = availableFontsCoBa.find((f: FontOption) => f.name === dataFontContent) || availableFontsCoBa[0];
+    //                         setContentFont(font);
+    //                     }  
+    //                     if(data.music){
+    //                         const result = await fetchMusicLists(); 
+    //                         if(result && result.length > 0){
+    //                             const indexTrack = result.findIndex((item: any) => item.id == data.music);
+    //                             onChooseMusic(result[indexTrack]);
+    //                         } 
+    //                     } 
+    //                 } 
+    //             }
+    //         } catch (error: unknown) {
+    //             // if (error instanceof Error) console.error(error.message);
+    //             setSections(availableValuesCoBa);
+    //         }
+    //     }
+    //     fetchData(); 
+    // }, []);
 
+
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          let response = null;
+          let hasWidgetData = false; // *** THÊM: Biến kiểm tra dữ liệu từ /api/widgets ***
+          let shouldDisable = false;
+          // Bước 1: Gọi /api/widgets
+          if (themeId && userId) {
+            response = await axios.get(`${API_BASE_URL}/api/widgets/${userId}/${themeId}`);
+            shouldDisable = true;
+          } else if (resolvedUserId && resolvedThemeId) {
+            response = await axios.get(`${API_BASE_URL}/api/widgets/${resolvedUserId}/${resolvedThemeId}`);
+            shouldDisable = true;
+          } else if (user && id) {
+            response = await axios.get(`${API_BASE_URL}/api/widgets/${user.id}/${id}`);
+            shouldDisable = false;
+          }
+    
+          // Bước 2: Xử lý dữ liệu từ /api/widgets
+          if (response?.data) {
+            const data = response.data;
+            const isExist = data.templates_with_widgets;
+            const dataFontTitle = data.titles_fonts;
+            const dataFontContent = data.content_fonts;
+    
+            if (isExist && isExist[0].widgets.length > 0) {
+              setSections(isExist[0].widgets); // *** ƯU TIÊN: Set sections từ /api/widgets ***
+              hasWidgetData = true; // *** THÊM: Đánh dấu có dữ liệu để ngăn gọi fetchDefaultData ***
+            }
+    
+            if (dataFontTitle) {
+              const font: FontOption =
+                availableFontsCoBa.find((f: FontOption) => f.name === dataFontTitle) || availableFontsCoBa[0];
+              setTitleFont(font);
+            }
+    
+            if (dataFontContent) {
+              const font: FontOption =
+                availableFontsCoBa.find((f: FontOption) => f.name === dataFontContent) || availableFontsCoBa[0];
+              setContentFont(font);
+            }
+            
+    
+            if (data.music) {
+              const result = await fetchMusicLists();
+              if (result && result.length > 0) {
+                const indexTrack = result.findIndex((item: any) => item.id == data.music);
+                if (indexTrack !== -1) {
+                  onChooseMusic(result[indexTrack]);
+                }
+              }
+            }
+          }
+    
+          // Bước 3: Nếu không có dữ liệu từ /api/widgets, gọi fetchDefaultData
+          if (!hasWidgetData) {
+            await fetchDefaultData(); // *** SỬA: Gọi fetchDefaultData nếu không có dữ liệu ***
+          }
+          setIsDisabled(shouldDisable);
+        } catch (error: unknown) {
+           setIsDisabled(true);
+          console.error('Lỗi khi lấy dữ liệu:', error);
+          await fetchDefaultData(); // *** SỬA: Gọi fetchDefaultData thay vì set sections trực tiếp ***
+        }
+      };
+    
+      fetchData();
+    }, [themeId, userId, resolvedUserId, resolvedThemeId, user, id]); // *** SỬA: Thêm fetchDefaultData vào dependencies ***
     const handleOpenModal = () => {
         const idCheck=Number(id) ? id : "null";
         if(idCheck=='null')

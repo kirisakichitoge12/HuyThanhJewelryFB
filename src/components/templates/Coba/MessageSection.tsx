@@ -65,6 +65,7 @@ const MessageSection: React.FC<MessageSectionProps> = ({
     };
 
     const fetchMessages = async () => {
+        if(user_id && theme_id) {
         try {
             const { data: messagesFromApi } = await axios.get(`${API_BASE_URL}/api/guest/messages`, {
                 params: { user_id, theme_id }
@@ -88,6 +89,7 @@ const MessageSection: React.FC<MessageSectionProps> = ({
             console.error("Lỗi khi tải lời chúc:", error);
             toast.error("Không thể tải lời chúc. Vui lòng thử lại.");
         }
+    }
     };
 
     useEffect(() => {
@@ -105,7 +107,8 @@ const MessageSection: React.FC<MessageSectionProps> = ({
             return;
         }
 
-        try {
+        if(user_id && theme_id) {
+           try {
             await axios.post(`${API_BASE_URL}/api/guest/messages`, {
                 ...formData,
                 user_id,
@@ -124,6 +127,7 @@ const MessageSection: React.FC<MessageSectionProps> = ({
             console.error("Error sending message:", error);
             toast.error("Chỉ khách mời mới có thể gửi lời chúc.");
         }
+        }
     };
 
     const handleReply = async (message: MessageProps) => {
@@ -139,37 +143,41 @@ const MessageSection: React.FC<MessageSectionProps> = ({
             toast.error("Chỉ khách mời mới có thể trả lời.");
             return;
         }
+        if(user_id && theme_id)
+            {
+                try {
+                await axios.post(`${API_BASE_URL}/api/guest/messages`, {
+                    user_id,
+                    theme_id,
+                    name: message.name || "Admin",
+                    content: message.content,
+                    reply: replyText
+                });
 
-        try {
-            await axios.post(`${API_BASE_URL}/api/guest/messages`, {
-                user_id,
-                theme_id,
-                name: message.name || "Admin",
-                content: message.content,
-                reply: replyText
-            });
+                toast.success("Gửi trả lời thành công", {
+                    iconTheme: {
+                        primary: 'rgb(237,131,131)',
+                        secondary: '#ffffff',
+                    },
+                });
 
-            toast.success("Gửi trả lời thành công", {
-                iconTheme: {
-                    primary: 'rgb(237,131,131)',
-                    secondary: '#ffffff',
-                },
-            });
+                const updatedMessages = messages.map(msg =>
+                    msg === message ? { ...msg, reply: replyText } : msg
+                );
+                onSectionChange("messages", updatedMessages);
 
-            const updatedMessages = messages.map(msg =>
-                msg === message ? { ...msg, reply: replyText } : msg
-            );
-            onSectionChange("messages", updatedMessages);
-
-            setReplyStates(prev => ({
-                ...prev,
-                [messageKey]: { isReplying: false, replyText: "" }
-            }));
-            fetchMessages();
-        } catch (error) {
-            console.error("Error sending reply:", error);
-            toast.error("Đã có lỗi khi gửi trả lời.");
+                setReplyStates(prev => ({
+                    ...prev,
+                    [messageKey]: { isReplying: false, replyText: "" }
+                }));
+                fetchMessages();
+            } catch (error) {
+                console.error("Error sending reply:", error);
+                toast.error("Đã có lỗi khi gửi trả lời.");
+            }
         }
+
+     
     };
 
     const toggleReply = (message: MessageProps) => {

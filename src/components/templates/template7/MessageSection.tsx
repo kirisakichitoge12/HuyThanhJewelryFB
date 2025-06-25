@@ -124,21 +124,22 @@ const MessageSection: React.FC<MessageSectionProps> = ({
       toast.error("Chỉ khách mời mới có thể gửi lời chúc.");
       return;
     }
+    if(user_id && theme_id) {
+      try {
+        const response = await axios.post(`${API_BASE_URL}/api/guest/messages`, {
+          ...formData,
+          user_id,
+          theme_id,
+        });
 
-    try {
-      const response = await axios.post(`${API_BASE_URL}/api/guest/messages`, {
-        ...formData,
-        user_id,
-        theme_id,
-      });
-
-      toast.success("Gửi lời chúc thành công");
-      onSectionChange("messages", [...messages, response.data]);
-      fetchMessages();
-      setFormData({ name: "", content: "", reply: "" });
-    } catch (error) {
-      console.error("Error sending message:", error);
-      toast.error("Gửi lời chúc thất bại. Vui lòng thử lại.");
+        toast.success("Gửi lời chúc thành công");
+        onSectionChange("messages", [...messages, response.data]);
+        fetchMessages();
+        setFormData({ name: "", content: "", reply: "" });
+      } catch (error) {
+        console.error("Error sending message:", error);
+        toast.error("Gửi lời chúc thất bại. Vui lòng thử lại.");
+      }
     }
   };
 
@@ -150,7 +151,7 @@ const MessageSection: React.FC<MessageSectionProps> = ({
       toast.error("Vui lòng nhập nội dung trả lời.");
       return;
     }
-
+  if(user_id && theme_id) {
     try {
       await axios.post(`${API_BASE_URL}/api/guest/messages`, {
         user_id,
@@ -172,6 +173,7 @@ const MessageSection: React.FC<MessageSectionProps> = ({
       console.error("Error sending reply:", error);
       toast.error("Đã có lỗi khi gửi trả lời.");
     }
+  }
   };
 
   const toggleReply = (index: number) => {

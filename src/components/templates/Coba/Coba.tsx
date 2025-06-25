@@ -175,9 +175,9 @@ const Coba: React.FC<CobaProps> = ({ disabled = false, userIdsub, themeIdsub }) 
     const [showReplaceModal, setShowReplaceModal] = useState(false);
 
     const [loading, setLoading] = useState(false);
-  const handleCloseReplaceModal = () => {
-    setShowReplaceModal(false);
-  };
+    const handleCloseReplaceModal = () => {
+        setShowReplaceModal(false);
+    };
   const location = useLocation();
 
   const idTemplate = useMemo(() => {
@@ -231,7 +231,16 @@ const Coba: React.FC<CobaProps> = ({ disabled = false, userIdsub, themeIdsub }) 
 const fetchDefaultData = useCallback(async () => {
   try {
     setLoading(true);
-    const res = await axios.get(`${API_BASE_URL}/api/admin/documents/1`);
+
+    // Tạo delay tối thiểu (ví dụ: 1500ms)
+    const minDelay = new Promise(resolve => setTimeout(resolve, 1500));
+
+    // Gọi API và delay song song
+    const [res] = await Promise.all([
+      axios.get(`${API_BASE_URL}/api/admin/documents/1`),
+      minDelay
+    ]);
+
     if (res.status === 200 && res.data.json_data) {
       const parsedData = typeof res.data.json_data === 'string'
         ? JSON.parse(res.data.json_data)
@@ -244,12 +253,10 @@ const fetchDefaultData = useCallback(async () => {
           : [];
 
       setAvailableValuesCoBa(defaultSections);
-      // Chỉ set sections nếu sections hiện tại rỗng
       if (sections.length === 0) {
         setSections(defaultSections);
       }
     } else {
-      // Nếu API không trả về dữ liệu hợp lệ, sử dụng giá trị mặc định từ config
       setAvailableValuesCoBa(defaultValuesCoBa);
       if (sections.length === 0) {
         setSections(defaultValuesCoBa);
@@ -257,8 +264,6 @@ const fetchDefaultData = useCallback(async () => {
     }
   } catch (error) {
     console.error('Lỗi khi lấy dữ liệu mặc định:', error);
-    // toast.error('Không thể lấy dữ liệu từ API, sử dụng dữ liệu mặc định.');
-    // Sử dụng dữ liệu mặc định từ config nếu API thất bại
     setAvailableValuesCoBa(defaultValuesCoBa);
     if (sections.length === 0) {
       setSections(defaultValuesCoBa);
@@ -268,38 +273,51 @@ const fetchDefaultData = useCallback(async () => {
   }
 }, [sections.length]);
 
+ useEffect(() => {
+  const checkTemplate = async () => {
+    if (user) {
+      setLoading(true); // Bật loading nếu muốn
+
+      const templateId = Number(id) ? id : 'null';
+
+      const delay = new Promise(resolve => setTimeout(resolve, 1800)); // Delay 1.5s
+
+      try {
+        const [response] = await Promise.all([
+          axios.get(`${API_BASE_URL}/api/replacement/${user.id}/${templateId}`),
+          delay
+        ]);
+
+        const isCheck = response.data.isNewTemplate;
+
+        // Mở modal nếu isNewTemplate = true
+        if (isCheck) {
+          setShowReplaceModal(true);
+        }
+
+        // Nếu là template cũ thì điều hướng
+        if (response.data.isTemplateold.id_template == idTemplate) {
+          navigate(`/theme/${response.data.isTemplateold.id}`);
+        }
+
+      } catch (error) {
+        console.error("Lỗi khi kiểm tra template:", error);
+        // Bạn có thể hiển thị toast lỗi hoặc modal fallback nếu cần
+      } finally {
+        setLoading(false); // Tắt loading sau cùng
+      }
+    }
+  };
+
+  checkTemplate();
+}, [user, id]);
+
 //  useEffect(() => {
 //   if (availableValuesCoBa.length === 0 || availableValuesCoBa === defaultValuesCoBa) {
 //     fetchDefaultData();
 //   }
 // }, [fetchDefaultData, availableValuesCoBa]);
 
-  useEffect(() => {
-    const checkTemplate = async () => {
-      if (user) {
-        const templateId = Number(id) ? id : 'null';
-        const response = await axios.get(
-          `${API_BASE_URL}/api/replacement/${user.id}/${templateId}`
-        );
-        const isCheck = response.data.isNewTemplate;
-       
-        // Nếu isCheck = true => Mở modal
-        if (isCheck) {
-          setShowReplaceModal(true);
-        } 
-        if (response.data.isTemplateold.id_template == idTemplate) {
-            
-            navigate(`/theme/${response.data.isTemplateold.id}`);
-          }
-        //   console.log('test id',response.data.isTemplateold.id)
-        // else{
-
-        // }
-      }
-    };
-
-    checkTemplate();
-  }, [user, id]);
 
 
     const handleSave = async () => {
@@ -668,19 +686,32 @@ const fetchDefaultData = useCallback(async () => {
     fetchData();
 }, [themeId, userId, resolvedUserId, resolvedThemeId, user, id]); // Thêm dependencies
 
-    useEffect(() => {
-    const mediaQuery = window.matchMedia("(max-width: 640px)");
-    const handleChange = () => {
-        // Chỉ set isDisabled nếu không ở trạng thái share
-        if (!themeId && !userId && !resolvedUserId && !resolvedThemeId) {
-            setIsDisabled(mediaQuery.matches);
-        }
-        setIsMobileScreen(mediaQuery.matches);
-    };
-    handleChange();
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
-}, [themeId, userId, resolvedUserId, resolvedThemeId]);
+//edit mobile screen
+//     useEffect(() => {
+//     const mediaQuery = window.matchMedia("(max-width: 640px)");
+//     const handleChange = () => {
+//         // Chỉ set isDisabled nếu không ở trạng thái share
+//         if (!themeId && !userId && !resolvedUserId && !resolvedThemeId) {
+//             setIsDisabled(mediaQuery.matches);
+//         }
+//         setIsMobileScreen(mediaQuery.matches);
+//     };
+//     handleChange();
+//     mediaQuery.addEventListener("change", handleChange);
+//     return () => mediaQuery.removeEventListener("change", handleChange);
+// }, [themeId, userId, resolvedUserId, resolvedThemeId]);
+     useEffect(() => {
+                const mediaQuery = window.matchMedia("(max-width: 640px)"); // Tailwind 'sm'
+                const handleChange = () => {
+                    setIsDisabled(mediaQuery.matches);
+                    setIsMobileScreen(mediaQuery.matches);
+                }
+                handleChange();
+                mediaQuery.addEventListener("change", handleChange);
+        
+                return () => mediaQuery.removeEventListener("change", handleChange);
+            }, []);
+
     const handleOpenModal = () => {
         const idCheck=Number(id) ? id : "null";
         if(idCheck=='null')
@@ -725,23 +756,55 @@ const fetchDefaultData = useCallback(async () => {
     // const hiddenComponentTypes = ['MessageSection']; // từ DB
      const [hiddenComponentTypes, setHiddenComponentTypes] = useState<string[]>([]);
 
+// useEffect(() => {
+//   const fetchHiddenComponents = async () => {
+//     try {
+//       const response = await axios.get(`${API_BASE_URL}/api/admin/hidentemplates/1`);
+      
+//       // Ép kiểu an toàn: nếu là mảng thì dùng luôn, không thì gán mảng rỗng
+//       const data = Array.isArray(response.data) ? response.data : [];
+      
+//       setHiddenComponentTypes(data);
+//     } catch (error) {
+//     //   console.error('Lỗi khi load component ẩn:', error);
+//       setHiddenComponentTypes([]); // fallback an toàn
+//     }
+//   };
+
+//   fetchHiddenComponents();
+// }, []);
 useEffect(() => {
   const fetchHiddenComponents = async () => {
     try {
+      const lastFetchTime = localStorage.getItem('lastFetchTime');
+      const now = new Date().getTime();
+      const thirtyMinutes = 30 * 60 * 1000;
+
+      if (lastFetchTime) {
+        const lastTime = Number(lastFetchTime);
+        if (!isNaN(lastTime) && (now - lastTime < thirtyMinutes)) {
+          const cachedData = localStorage.getItem('hiddenComponentTypes');
+          if (cachedData) setHiddenComponentTypes(JSON.parse(cachedData));
+          return;
+        }
+      }
+
       const response = await axios.get(`${API_BASE_URL}/api/admin/hidentemplates/1`);
-      
-      // Ép kiểu an toàn: nếu là mảng thì dùng luôn, không thì gán mảng rỗng
-      const data = Array.isArray(response.data) ? response.data : [];
-      
-      setHiddenComponentTypes(data);
+      const data = response.data;
+      if (data === false) {
+        setHiddenComponentTypes([]); // Không có dữ liệu, đặt mảng rỗng
+      } else {
+        setHiddenComponentTypes(Array.isArray(data) ? data : []);
+        localStorage.setItem('lastFetchTime', now.toString());
+        localStorage.setItem('hiddenComponentTypes', JSON.stringify(data));
+      }
     } catch (error) {
-    //   console.error('Lỗi khi load component ẩn:', error);
-      setHiddenComponentTypes([]); // fallback an toàn
+      setHiddenComponentTypes([]); // Fallback an toàn
     }
   };
 
   fetchHiddenComponents();
-}, []);
+}, []); // Thêm templateId vào dependency array nếu nó thay đổi
 
     //  console.log("hiddenComponentTypes", hiddenComponentTypes);
     return (
