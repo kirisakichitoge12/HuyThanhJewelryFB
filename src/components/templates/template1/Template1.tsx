@@ -1,0 +1,761 @@
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import BankSection from './BankSection'
+import MessageSection, { MessageProps } from './MessageSection'
+import EventsSection, { EventProps } from './EventsSection'
+import AlbumSection from './AlbumSection'
+import Invitation from './Invitation' 
+import StorySection from './StorySection'
+import Banner from './Banner'
+import Introduction from './Introduction'
+import TimelineSection, { TimelineProps } from './TimelineSection'
+import FallingIcons from '../../common/FallingIcon '
+import { CustomFile } from '../../../types';
+import { FaArrowLeft, FaRegTimesCircle } from 'react-icons/fa';
+import SubNavbarDisplayMode, { SubNavbarMethods } from '../../../layouts/SubNavbarDisplayMode'
+import FontSelector from '../../FontSelector'
+import { CiMusicNote1 } from 'react-icons/ci'
+import { availableFontsCoBa, availableValuesTemplate1 as defaultValuesCoBa } from '../../../config'
+import { useFont } from '../../../hooks/useFont'
+import { IoIosLaptop } from 'react-icons/io'
+import { HiOutlineDevicePhoneMobile } from 'react-icons/hi2'
+import { useConfirmModal, useMusicModal } from '../../../hooks/modals'
+import { UserContext } from '../../../context/UserContext'
+import toast from 'react-hot-toast';
+import axios from 'axios';
+import { FontOption } from '../../../types/fonts'; 
+import {  useLocation, useNavigate, useParams } from 'react-router-dom';
+import Loading from 'react-loading';
+import { fetchMusicLists } from '../../../api/music' 
+import { FaRegCirclePause, FaRegCirclePlay } from 'react-icons/fa6'
+import { MusicData } from '../../../types/music.interface'
+import { API_BASE_URL } from '../../../config/api.config';
+
+const ReplaceTemplate = () => {
+    return (
+        <>
+            <h3 className='text-xl text-primary text-center'>Bạn có thực sự muốn đổi giao diện? </h3>
+            <p className='my-5 text-gray-500'>Thao tác này sẽ xoá bỏ giao diện cũ bạn đã tạo và lưu lại giao diện này.</p>
+            <hr/>
+        </>
+    )
+}
+type ReplaceTemplateModalProps = {
+    onClose: () => void;
+  };
+  
+  const ReplaceTemplateModal = ({ onClose }: ReplaceTemplateModalProps) => {
+    return (
+      <div className="fixed inset-0 flex items-center z-[9999] justify-center bg-black bg-opacity-50">
+        <div className="bg-white p-6 rounded-lg shadow-lg w-[500px]">
+          <h3 className="text-xl text-center text-primary font-bold">Lưu ý!</h3>
+          <p className="mt-4 text-gray-600">
+            Khi đổi giao diện mới, bạn sẽ phải chỉnh sửa lại toàn bộ thông tin và ảnh.
+            Giao diện cũ bạn chỉnh sửa trước đó sẽ được xoá bỏ khi bạn nhấn "Lưu trang" giao diện này.
+          </p>
+          <div className="mt-6 flex justify-center">
+            <button
+              className="bg-primary text-white px-4 py-2 rounded"
+              onClick={onClose}
+            >
+              Tiếp tục chỉnh sửa
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const ReplaceTemplateModalBack = ({ onClose, onConfirm }: { onClose: () => void, onConfirm: () => void }) => {
+    return (
+        <div className="fixed inset-0 flex items-center z-[9999] justify-center bg-black bg-opacity-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-[500px]">
+                <h3 className="text-xl text-center text-primary font-bold">Bạn có muốn lưu lại giao diện này không?</h3>
+                <p className="mt-4 text-gray-600">
+                    Thao tác này sẽ xoá bỏ giao diện cũ bạn đã tạo và lưu lại giao diện này.
+                </p>
+                <div className="mt-6 flex justify-center gap-4 ">
+                    <button
+                        className="bg-primary text-white px-4 py-2 rounded flex-1"
+                        onClick={onConfirm}
+                    >
+                        Có
+                    </button>
+                    <button
+                        className="bg-primary text-white px-4 py-2 rounded flex-1"
+                        onClick={onClose}
+                    >
+                        Không
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    );
+};
+
+
+interface Section {
+    id: number;
+    type: "Banner" | "Invitation" | "Introduction" | "StorySection" | "EventsSection" | "AlbumSection" | "TimelineSection" | "MessageSection" | "BankSection";
+    props: any;
+}
+interface TemplateProps {
+    userId?: number;
+    themeId?: number;
+  }
+// const Template1: React.FC= () => {
+//     const [sections, setSections] = useState<Section[]>(availableValuesTemplate1);
+const Template1: React.FC<TemplateProps>= (props) => {
+    const [availableValuesCoBa, setAvailableValuesCoBa] = useState<Section[]>(defaultValuesCoBa);
+    const [sections, setSections] = useState<Section[]>([]); 
+    const [loading, setLoading] = useState(false);
+    const [showModal, setShowModal] = useState(false);
+    const [isPlayMusic, setIsPlayMusic] = useState<boolean>(false);
+    const [sharedAlbums, setSharedAlbums] = useState<File[] | string[]>([]); // State để chia sẻ albums
+    
+    const handleSectionChange = (
+        sectionId: number, // ID của section cần thay đổi
+        name: string, // Tên trường cần thay đổi
+        newValue: string | File | MessageProps[] | CustomFile[] | TimelineProps | EventProps[] | EventProps, // Giá trị mới
+        subField?: string, // Trường con (nếu có)
+        index?: number // Vị trí trong mảng (nếu có)
+    ) => {
+        // Nếu là albums từ AlbumSection, cập nhật sharedAlbums
+        if (name === "albums") {
+            console.log('🔄 Template1 - Updating sharedAlbums:', newValue);
+            setSharedAlbums(newValue as File[] | string[]);
+        }
+        
+        setSections((prevSections) =>
+            prevSections.map((section) => {
+                if (section.id !== sectionId) {
+                    return section;
+                } 
+                if (subField && typeof index === "number" && Array.isArray(section.props[name]) && section.props[name].length > 0) {
+                    return {
+                        ...section,
+                        props: {
+                            ...section.props,
+                            [name]: section.props[name]?.map((item: any, i: number) =>
+                                i === index ? { ...item, [subField]: newValue } : item
+                            ),
+                        },
+                    };
+                }
+                if (name === "events" && typeof index === "number") { 
+                    return {
+                        ...section,
+                        props: {
+                            ...section.props,
+                            [name]: section.props[name]?.map((item: any, i: number) =>
+                                i === index ? newValue : item
+                            ),
+                        }
+                    }
+                }
+                if (name === "elements" && typeof index === "number") {
+                    // console.log(name)
+                    return {
+                        ...section,
+                        props: {
+                            ...section.props,
+                            [name]: section.props[name]?.map((item: any, i: number) =>
+                                i === index ? newValue : item
+                            ),
+                        }
+                    }
+                }
+                return {
+                    ...section,
+                    props: {
+                        ...section.props,
+                        [name]: newValue,
+                    },
+                };
+            })
+        );
+    };
+    // const { id } = useParams();
+    const { id, userId, themeId } = useParams();
+    const audioRef = useRef<HTMLAudioElement>(null);    
+    const displayRef = useRef<SubNavbarMethods | null>(null);
+    const [isMobileScreen, setIsMobileScreen] = useState<boolean>(false); 
+    const { currentFont: titleFont, setCurrentFont: setTitleFont } = useFont();
+    const { currentFont: contentFont, setCurrentFont: setContentFont } = useFont();
+    const [isDisabled, setIsDisabled] = useState<boolean>(false);
+    const sectionRefs = useRef<(HTMLDivElement | null)[]>([]); 
+    const { onOpen, track, onChooseMusic } = useMusicModal();
+    const { onOpen: onOpenConfirm } = useConfirmModal();
+    const context = useContext(UserContext); 
+    const { user } = context;  
+    const navigate = useNavigate();
+       const [showReplaceModal, setShowReplaceModal] = useState(false);
+    
+      const handleCloseReplaceModal = () => {
+        setShowReplaceModal(false);
+      };
+    const location = useLocation();
+    
+      const idTemplate = useMemo(() => {
+        const path = location.pathname;
+      
+        if (path.includes('/theme/coba')) return 1;
+        if (path.includes('/theme/template1')) return 2;
+        if (path.includes('/theme/sangtrong')) return 3;
+        if (path.includes('/theme/codien')) return 4;
+        if (path.includes('/theme/tinhyeu')) return 5;
+        if (path.includes("/theme/nhenhang")) return 6;
+        if (path.includes("/theme/hoathoa")) return 7;
+      
+        return null; // hoặc giá trị mặc định
+      }, [location.pathname]);
+    const fetchDefaultData = useCallback(async () => {
+            try {
+            setLoading(true);
+            const res = await axios.get(`${API_BASE_URL}/api/admin/documents/2`);
+            if (res.status === 200 && res.data.json_data) {
+                const parsedData = typeof res.data.json_data === 'string'
+                ? JSON.parse(res.data.json_data)
+                : res.data.json_data;
+        
+                const defaultSections = Array.isArray(parsedData)
+                ? parsedData
+                : Array.isArray(parsedData?.data)
+                    ? parsedData.data
+                    : [];
+        
+                setAvailableValuesCoBa(defaultSections);
+                // Chỉ set sections nếu sections hiện tại rỗng
+                if (sections.length === 0) {
+                setSections(defaultSections);
+                }
+            } else {
+                // Nếu API không trả về dữ liệu hợp lệ, sử dụng giá trị mặc định từ config
+                setAvailableValuesCoBa(defaultValuesCoBa);
+                if (sections.length === 0) {
+                setSections(defaultValuesCoBa);
+                }
+            }
+            } catch (error) {
+            console.error('Lỗi khi lấy dữ liệu mặc định:', error);
+            // toast.error('Không thể lấy dữ liệu từ API, sử dụng dữ liệu mặc định.');
+            // Sử dụng dữ liệu mặc định từ config nếu API thất bại
+            setAvailableValuesCoBa(defaultValuesCoBa);
+            if (sections.length === 0) {
+                setSections(defaultValuesCoBa);
+            }
+            } finally {
+            setLoading(false);
+            }
+  }, [sections.length]);
+  
+   useEffect(() => {
+    if (availableValuesCoBa.length === 0 || availableValuesCoBa === defaultValuesCoBa) {
+      fetchDefaultData();
+    }
+  }, [fetchDefaultData, availableValuesCoBa]);
+  
+
+      useEffect(() => {
+        const checkTemplate = async () => {
+          if (user) {
+            const templateId = Number(id) ? id : 'null';
+            const response = await axios.get(
+              `${API_BASE_URL}/api/replacement/${user.id}/${templateId}`
+            );
+            const isCheck = response.data.isNewTemplate;
+           
+            // Nếu isCheck = true => Mở modal
+            if (isCheck) {
+              setShowReplaceModal(true); //tinhs sao
+            } 
+            if (response.data.isTemplateold.id_template == idTemplate) {
+                
+                navigate(`/theme/${response.data.isTemplateold.id}`);
+              }
+            //   console.log('test id',response.data.isTemplateold.id)
+            // else{
+    
+            // }
+          }
+        };
+    
+        checkTemplate();
+      }, [user, id]);
+        
+
+
+
+    const handleSave = async () => {
+        setLoading(true);
+
+        setTimeout(() => {
+            setLoading(false);
+         }, 1500);
+        
+      
+
+        if(user === null) toast.error("Vui lòng dăng nhập");
+        if(user){ 
+            const templateId = Number(id) ? id : "null";
+            const response = await axios.get(`${API_BASE_URL}/api/replacement/${user.id}/${Number(id) ? id : "null"}`);
+            const isCheck = response.data.isNewTemplate;
+            const data = { 
+                titleFont: titleFont.value,
+                contentFont: contentFont.value,
+                name_template:"Ngày mộng mơ",
+                name_music: track ? track.id : 0 ,
+                id_customer: user.id,
+                sections: sections,
+                templateId: Number(id) ? id : "null",
+                templateId_default: 2,
+            } 
+            // console.log(data) 
+            const handlePost = async () => {
+                const response = await axios.post(`${API_BASE_URL}/api/savetemplate`, data, {
+                    headers: {
+                        "Content-Type": "multipart/form-data"
+                    }
+                });
+                // console.log(response)
+                if(response.status === 200) {
+                    setTimeout(() => {
+                        toast.success("Lưu thành công"
+                            ,{
+                                iconTheme: {
+                                  primary: 'rgb(237,131,131)', // Màu của icon
+                                  secondary: '#ffffff', // Màu nền của icon
+                                },
+                              }
+                        );      
+                        // localStorage.setItem('userId', JSON.stringify(user.id));
+                        // localStorage.setItem('templateId', JSON.stringify(templateId));
+                        
+                     }, 1500);
+
+                    if (response.data.template_customer_id !== templateId) {
+                        navigate(`/theme/${response.data.template_customer_id}`);
+                      }
+                }else{
+                    setTimeout(() => {
+                        toast.error("Lưu thất bại");
+                     }, 1500);
+                 
+                } 
+            }
+            // console.log(isCheck);
+            if (isCheck) {
+                setTimeout(() => {
+                    onOpenConfirm(<ReplaceTemplate/>, handlePost);
+                 }, 1500);
+               
+            }else{
+                handlePost();
+            }  
+        }
+    };
+
+    const handleSavenew = async () => {
+        setLoading(true);
+
+        setTimeout(() => {
+            setLoading(false);
+         }, 1500);
+        
+         
+
+        if(user === null) toast.error("Vui lòng dăng nhập");
+        if(user){ 
+            const templateId = Number(id) ? id : "null";
+            const response = await axios.get(`${API_BASE_URL}/api/replacement/${user.id}/${Number(id) ? id : "null"}`);
+            const isCheck = response.data.isNewTemplate;
+            const data = { 
+                titleFont: titleFont.value,
+                contentFont: contentFont.value,
+                name_template:"Ngày mộng mơ",
+                name_music: track ? track.id : 0 ,
+                id_customer: user.id,
+                sections: sections,
+                templateId: Number(id) ? id : "null",
+                templateId_default: 2,
+            } 
+            // console.log(data) 
+            const handlePost = async () => {
+                const response = await axios.post(`${API_BASE_URL}/api/savetemplate`, data, {
+                    headers: {
+                        "Content-Type": "multipart/form-data"
+                    }
+                });
+                // console.log(response)
+                if(response.status === 200) {
+                    setTimeout(() => {
+                        toast.success("Lưu thành công"
+                            ,{
+                                iconTheme: {
+                                  primary: 'rgb(237,131,131)', // Màu của icon
+                                  secondary: '#ffffff', // Màu nền của icon
+                                },
+                              }
+                        );                                      
+                     }, 1500);
+
+                    if (response.data.template_customer_id !== templateId) {
+                        navigate(`/theme/${response.data.template_customer_id}`);
+                        navigate('/user/management/page');
+                      }
+                }else{
+                    setTimeout(() => {
+                        toast.error("Lưu thất bại");
+                     }, 1500);
+                 
+                } 
+            }
+            console.log(isCheck);
+            if (isCheck) {
+                handlePost();
+            }else{
+                handlePost();
+            }  
+        }
+    };
+
+    // useEffect(() => { 
+    //     if(track && audioRef.current){
+    //         if (typeof track.file_url === "string") {
+    //             audioRef.current.src = `https://apii.hungthinhsecurity.com${track.file_url}`; 
+    //             audioRef.current.play();
+    //         }
+            
+    //     }
+    // },[track]);  
+
+    useEffect(() => {
+        const mediaQuery = window.matchMedia("(max-width: 640px)"); // Tailwind 'sm'
+        const handleChange = () => {
+            setIsDisabled(mediaQuery.matches);
+            setIsMobileScreen(mediaQuery.matches);
+        }
+        handleChange();
+        mediaQuery.addEventListener("change", handleChange);
+    
+        return () => mediaQuery.removeEventListener("change", handleChange);
+    }, []);  
+
+    //subdomain
+    const params = useParams<{ id?: string; userId?: string; themeId?: string }>();
+         
+    const resolvedUserId = props.userId ?? (params.userId ? parseInt(params.userId) : undefined);
+    const resolvedThemeId = props.themeId ?? (params.themeId ? parseInt(params.themeId) : undefined);
+    useEffect(() => {
+        const fetchData = async () => {
+            try { 
+                let response = null;
+                if(themeId && userId){
+                    response = await axios.get(`${API_BASE_URL}/api/widgets/${userId}/${themeId}`);
+                    setIsDisabled(true);
+                }
+                else if(resolvedUserId && resolvedThemeId){
+                    response = await axios.get(`${API_BASE_URL}/api/widgets/${resolvedUserId}/${resolvedThemeId}`); 
+                    setIsDisabled(true);
+                }
+                else{
+                    if(user){
+                        response = await axios.get(`${API_BASE_URL}/api/widgets/${user.id}/${id}`);
+                        setIsDisabled(false);
+                    }
+                }
+                if(response){
+                    const data = response.data;
+                    const isExist = data.templates_with_widgets;
+                    const dataFontTitle = data.titles_fonts;
+                    const dataFontContent = data.content_fonts;  
+                    // console.log(data);
+                    if(data){
+                        if (isExist) {
+                            // console.log(data);
+                            if (isExist[0].widgets.length > 0) {  
+                                setSections(isExist[0].widgets);
+                            } 
+                        }
+                        if(dataFontTitle ){
+                            const font: FontOption = availableFontsCoBa.find((f: FontOption) => f.name === dataFontTitle) || availableFontsCoBa[0];
+                            setTitleFont(font);
+                        }
+                        if(dataFontContent ){
+                            const font: FontOption = availableFontsCoBa.find((f: FontOption) => f.name === dataFontContent) || availableFontsCoBa[0];
+                            setContentFont(font);
+                        }  
+                        if(data.music){
+                            const result = await fetchMusicLists(); 
+                            if(result && result.length > 0){
+                                const indexTrack = result.findIndex((item: any) => item.id == data.music);
+                                onChooseMusic(result[indexTrack]);
+                            } 
+                        } 
+                    } 
+                }
+            } catch (error: unknown) {
+                // if (error instanceof Error) console.error(error.message);
+                setSections(availableValuesCoBa);
+            }
+        }
+        fetchData(); 
+    }, []);
+
+    const handleOpenModal = () => {
+        const idCheck=Number(id) ? id : "null";
+        if(idCheck=='null')
+            {
+                setShowModal(true);
+            }
+            else{
+                setShowModal(false);
+                navigate('/user/management/page');
+            }
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+        navigate('/user/management/page'); // Nếu chọn "Không", quay về trang Home
+    };
+
+    const handleConfirmModal = () => {
+        setShowModal(false);
+        handleSavenew();   
+       
+    };
+    const handlePlayMusic = useCallback((dataTrack: MusicData | null) => { 
+        if(dataTrack && audioRef.current){
+            if (isPlayMusic) { 
+                console.log("pause music", dataTrack);
+                audioRef.current.pause();
+                audioRef.current.currentTime = 0;  
+            } else { 
+                console.log("play music", dataTrack);
+                audioRef.current.src = `${API_BASE_URL}${dataTrack.file_url}`;  
+                audioRef.current.play();  
+            }
+            setIsPlayMusic(!isPlayMusic); 
+        }
+    }, [isPlayMusic]); 
+ // const hiddenComponentTypes = ['MessageSection']; // từ DB
+    const [hiddenComponentTypes, setHiddenComponentTypes] = useState<string[]>([]);
+    
+    useEffect(() => {
+      const fetchHiddenComponents = async () => {
+        try {
+          const response = await axios.get(`${API_BASE_URL}/api/admin/hidentemplates/2`);
+          
+          // Ép kiểu an toàn: nếu là mảng thì dùng luôn, không thì gán mảng rỗng
+          const data = Array.isArray(response.data) ? response.data : [];
+          
+          setHiddenComponentTypes(data);
+        } catch (error) {
+        //   console.error('Lỗi khi load component ẩn:', error);
+          setHiddenComponentTypes([]); // fallback an toàn
+        }
+      };
+    
+      fetchHiddenComponents();
+    }, []);
+
+    useEffect(() => {
+        // Khởi tạo sharedAlbums từ dữ liệu albums ban đầu
+        const albumSection = sections.find(section => section.type === 'AlbumSection');
+        if (albumSection && albumSection.props.albums && albumSection.props.albums.length > 0) {
+            console.log('🔄 Template1 - Initializing sharedAlbums from existing data:', albumSection.props.albums);
+            setSharedAlbums(albumSection.props.albums);
+        }
+    }, [sections]);
+
+    return (
+        <section className='relative w-full h-full overflow-hidden'>
+            {!isDisabled &&
+            <div className='fixed z-50  w-full bg-white'>
+                <div className='p-2 max-w-9xl mx-auto'>
+                    <div className="flex justify-between items-center space-x-4">
+                        <audio  
+                            ref={audioRef}
+                            // controls  
+                            className='hidden'
+                            // onEnded={() => setCurrentTrack(null)}
+                        />
+                        <button
+                            onClick={handleOpenModal}
+                            className="px-6 py-2 text-primary border-[1px] border-primary rounded-lg hover:bg-red-100">
+                            <FaArrowLeft />
+                        </button>
+                        <div className='flex justify-center items-center gap-5'>
+                            <button onClick={() => displayRef.current && displayRef.current.enterFullScreen("desktop")}><IoIosLaptop size={40} /></button>
+                            <button onClick={() => displayRef.current && displayRef.current.enterFullScreen("mobile")}><HiOutlineDevicePhoneMobile size={26} /></button>
+                            <button
+                                onClick={handleSave}
+                                className="px-6 py-2 text-[#384094] border-[1px] border-[#384094] font-bold rounded-lg hover:bg-blue-100">
+                                Lưu trang
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div className="w-full flex items-center justify-between px-4 pb-1 max-w-9xl mx-auto gap-5 pt-2 overflow-auto md:overflow-visible">
+                    {/* Left Section */} 
+                    <FontSelector
+                        title="Chọn chữ tiêu đề"
+                        selectedFont={titleFont.value}
+                        onFontChange={setTitleFont}
+                        fontSets={availableFontsCoBa}
+                    />
+                    <FontSelector
+                        title="Chọn chữ nội dung"
+                        selectedFont={contentFont.value}
+                        onFontChange={setContentFont}
+                        fontSets={availableFontsCoBa}
+                    />
+                     <button onClick={()=>handlePlayMusic(track)} className='w-96 inline-flex items-center gap-2 hover:bg-gray-200 h-8 px-1 rounded-full'>
+                        {
+                            isPlayMusic ? (
+                                <FaRegCirclePause size={25}/>
+                            ):(
+                                <FaRegCirclePlay size={25}/>
+                            )
+                        }
+                        <p className='inline-block truncate'>
+                            { track ? track.name : "Chưa chọn nhạc" }
+                        </p>
+                    </button>
+                    <button  
+                        onClick={() => { 
+                        onOpen(true);  // Mở modal  
+                        // if (audioRef.current) {  
+                        //     audioRef.current.pause(); // Dừng nhạc ngay lập tức  
+                        //     audioRef.current.currentTime = 0; // Reset thời gian  
+                        // }  
+                        //     setIsPlayMusic(false); // Cập nhật trạng thái  
+                        }}  
+                         className='hover:bg-gray-200 w-8 h-8 px-1 rounded-full'>
+                            <CiMusicNote1 size={25} />
+                        </button>
+                </div>
+            </div>
+          }
+            <FallingIcons iconCount={30} />
+            <section className="relative bg-white overflow-y-auto">
+                <SubNavbarDisplayMode ref={displayRef} setDisabled={setIsDisabled}>
+                    <div>
+                        {sections.map((section, index) => {
+                            if (hiddenComponentTypes.includes(section.type)) return null;
+                            const Component = {
+                                Banner,
+                                Introduction,
+                                Invitation,
+                                StorySection,
+                                AlbumSection,
+                                TimelineSection,
+                                EventsSection,
+                                MessageSection,
+                                BankSection,
+                            }[section.type];
+
+                            return (
+                                <div key={section.id} className="section"
+                                    ref={(el) => (sectionRefs.current[index] = el)}
+                                >
+                                    <Component
+                                        // {...section.props}
+                                          {...{
+                                            ...section.props,
+                                            ...(section.type === 'MessageSection' && {
+                                                user_id: resolvedUserId,
+                                                theme_id: resolvedThemeId,
+                                            }),
+                                            ...(section.type === 'Banner' && {
+                                                sharedAlbums: sharedAlbums,
+                                            }),
+                                        }}
+                                        id={section.id}  
+                                        titleFont={titleFont.value} 
+                                        contentFont={contentFont.value}
+                                        disabled={isDisabled}
+                                        onSectionChange={(name: string, newValue: string | File | CustomFile[] | MessageProps[] | TimelineProps, subField?: string, i?: number) =>
+                                            handleSectionChange(section.id, name, newValue, subField, i)
+                                        }
+                                    />
+                                </div>
+                            );
+                        })}
+                    </div> 
+                </SubNavbarDisplayMode>
+            </section>
+            {
+                isMobileScreen && (
+                    <div className='absolute hidden bottom-10 w-full z-50'>
+                        <div className='bg-cyan-500 text-white px-4 py-2 mx-10 flex rounded-lg'>
+                            <p>Hãy sử dụng PC/Laptop để có trải nghiệm sử dụng tốt nhất nhé!!</p>
+                            <button onClick={() => setIsMobileScreen(false)}><FaRegTimesCircle size={20}/></button>
+                        </div>
+                    </div>
+                )
+            }
+            {isDisabled && (
+             <audio  
+                            ref={audioRef}
+                            // controls  
+                            className='hidden'
+                            // onEnded={() => setCurrentTrack(null)}
+                        />
+                    )}
+            {isDisabled && (
+                
+                // <button
+                //     onClick={() => handlePlayMusic(track)}
+                //     className='fixed left-4 top-1/2 transform -translate-y-1/2 w-96 inline-flex items-center gap-2 hover:bg-gray-200 h-8 px-1 rounded-full text-primary'
+                //     >
+                //     {isPlayMusic ? <FaRegCirclePause size={25} /> : <FaRegCirclePlay size={25} />}
+                //     <p className='inline-block truncate'></p>
+                //     </button>
+                 <button
+                    onClick={() => handlePlayMusic(track)}
+                    className='fixed focus:outline-none left-4 bottom-0 transform -translate-y-1/2 inline-flex items-center gap-2 hover:bg-gray-200 h-8 px-1 rounded-full text-primary'
+                    >
+                    {isPlayMusic ? <FaRegCirclePause size={25} /> : <FaRegCirclePlay size={25} />}
+                    {/* <p className='inline-block truncate'></p> */}
+                    </button>
+
+                )}
+
+                 {showReplaceModal && !isDisabled &&(
+                    <ReplaceTemplateModal onClose={handleCloseReplaceModal} />
+                )}
+
+            {loading && (
+                <div style={{
+                    position: 'fixed', // giúp overlay toàn màn hình
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: 'rgba(255, 255, 255, 0.6)', // lớp mờ nền nhẹ
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 9999 // đảm bảo nổi trên cùng
+                }}>
+                    <Loading
+                        type="spinningBubbles"
+                        color="rgba(237,131,131)"
+                        height={100}
+                        width={100}
+                    />
+                </div>
+            )}
+            {showModal && (
+                <ReplaceTemplateModalBack
+                    onClose={handleCloseModal}   // Đóng và về trang Home
+                    onConfirm={handleConfirmModal} // Xác nhận lưu và quay lại trang trước
+                />
+            )}
+
+        </section>
+    )
+}
+
+export default Template1

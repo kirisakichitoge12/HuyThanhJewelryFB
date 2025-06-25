@@ -1,0 +1,2 @@
+export const API_BASE_URL = `${window.__ENV__.API_URL}`;
+

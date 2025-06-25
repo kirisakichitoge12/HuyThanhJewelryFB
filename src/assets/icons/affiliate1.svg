@@ -1,0 +1,11 @@
+
+<svg className="w-48 h-48" viewBox="0 0 200 200">
+    <rect x="60" y="40" width="80" height="120" rx="8" fill="#FF69B4" />
+    <circle cx="100" cy="70" r="15" fill="#FFD700" />
+    <rect x="75" y="100" width="50" height="8" rx="4" fill="white" />
+    <rect x="75" y="120" width="50" height="8" rx="4" fill="white" />
+    <circle cx="140" cy="50" r="12" fill="#FFD700" />
+    <circle cx="60" cy="150" r="12" fill="#FFD700" />
+    <path d="M140 50 L160 30" stroke="#FFD700" strokeWidth="2" />
+    <path d="M60 150 L40 170" stroke="#FFD700" strokeWidth="2" />
+</svg>

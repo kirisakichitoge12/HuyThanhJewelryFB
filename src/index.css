@@ -1,0 +1,301 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: "SVN-Product Sans", sans-serif;
+}
+.custom-arrow-select {
+  appearance: none;
+  padding-right: 30px;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="gray" width="15" height="15"><path d="M7 10l5 5 5-5z"/></svg>')
+    no-repeat right 15px center;
+  background-color: white;
+}
+
+.hidden-scrollbar {
+  overflow: auto; /* Hides the scrollbar */
+}
+
+::-webkit-scrollbar {
+  width: 4px; /* Độ rộng của scrollbar */
+}
+
+/* For webkit browsers (Chrome, Safari) */
+.hidden-scrollbar::-webkit-scrollbar {
+  display: none; /* Hides the scrollbar */
+}
+
+/* For Firefox */
+.hidden-scrollbar {
+  scrollbar-width: none; /* Hides the scrollbar */
+}
+
+@keyframes customPulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+@font-face {
+  font-family: "Prata";
+  src: url("./assets/fonts/Prata/Prata-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "PinyonScript";
+  src: url("./assets/fonts/Pinyon_Script/PinyonScript-Regular.ttf")
+    format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "BeVietnamPro";
+  src: url("./assets/fonts/Be_Vietnam_Pro/BeVietnamPro-Regular.ttf")
+    format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "SVN-Product Sans";
+  src: url("../assets/fonts/ProductSans/Product Sans Regular.otf")
+    format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "SVN-Product Sans";
+  src: url("../assets/fonts/ProductSans/Product Sans Bold.otf")
+    format("truetype");
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Phudu";
+  src: url("./assets/fonts/Phudu/Phudu-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Phudu";
+  src: url("./assets/fonts/Phudu/Phudu-Light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Phudu";
+  src: url("./assets/fonts/Phudu/Phudu-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Birthstone";
+  src: url("./assets/fonts/Birthstone/Birthstone-Regular.ttf")
+    format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Trirong";
+  src: url("./assets/fonts/Trirong/Trirong-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "OpenSans";
+  src: url("./assets/fonts/Open_Sans/static/OpenSans-Regular.ttf")
+    format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Marmelad";
+  src: url("./assets/fonts/Marmelad/Marmelad-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Explora";
+  src: url("./assets/fonts/Explora/Explora-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "PlayfairDisplay";
+  src: url("./assets/fonts/Playfair_Display/PlayfairDisplay-Regular.ttf")
+    format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Pacifico";
+  src: url("./assets/fonts/Pacifico/Pacifico-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Aleo";
+  src: url("./assets/fonts/Aleo/static/Aleo-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Charmonman";
+  src: url("./assets/fonts/Charmonman/Charmonman-Regular.ttf")
+    format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "CormorantUnicase";
+  src: url("./assets/fonts/Cormorant_Unicase/CormorantUnicase-Regular.ttf")
+    format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "EncodeSans";
+  src: url("./assets/fonts/Encode_Sans/static/EncodeSans-Regular.ttf")
+    format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Corinthia";
+  src: url("./assets/fonts/Corinthia/Corinthia-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "MeowScript";
+  src: url("./assets/fonts/Meow_Script/MeowScript-Regular.ttf")
+    format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+/* Padding mặc định */
+.element {
+  padding-left: 2.25rem; /* Padding left cho màn hình dưới 390px */
+  padding-right: 1.25rem; /* Padding right */
+}
+
+/* Màn hình từ 390px trở lên và dưới 430px */
+@media (min-width: 390px) and (max-width: 429px) {
+  .element {
+    padding-left: 1.64rem; /* Padding left cho màn hình từ 390px đến dưới 430px */
+  }
+}
+
+/* Màn hình từ 430px trở lên */
+@media (min-width: 430px) and (max-width: 435px) {
+  .element {
+    padding-left: 2.75rem; /* Padding left cho màn hình trên 430px */
+  }
+}
+@media (min-width: 436px) {
+  .element {
+    padding-left: 0.25rem; /* Padding left cho màn hình trên 430px */
+    padding-right: 0.25rem;
+  }
+}
+@media (min-width: 290px) and (max-width: 435px) {
+  .pd-news {
+    padding-left: 25px; /* Padding left cho màn hình trên 430px */
+    padding-right: 25px;
+  }
+}
+@media (min-width: 290px) and (max-width: 435px) {
+  .pd-themes {
+    padding-left: 0px; /* Padding left cho màn hình trên 430px */
+    padding-right: 7px;
+  }
+}
+/* Giới thiệu class respons1k2 cho các màn hình từ 1018px đến 1200px */
+
+@media (min-width: 1050px) and (max-width: 1090px) {
+  .respon1k2 {
+    width: 240px;
+  }
+}
+@media (min-width: 1092px) and (max-width: 1120px) {
+  .respon1k2 {
+    width: 220px;
+  }
+}
+@media (min-width: 1341px) {
+  .respon1k2 {
+    width: 295px;
+  }
+}
+@media (min-width: 350px) and (max-width: 380px) {
+  .text-se {
+    font-size: 25px;
+  }
+}
+@media (max-width: 425px) {
+  .font-mobile {
+    font-size: 13px;
+  }
+}
+@media (max-width: 420px) {
+  .text-authentication {
+    font-size: 11px;
+  }
+}
+@media (max-width: 820px) {
+  .hidden-mobile {
+    display: none;
+  }
+}
+
+.text-3d {
+  text-shadow: -2px -2px 0 white, 2px -2px 0 white, -2px 2px 0 white,
+    2px 2px 0 white;
+  font-weight: 700;
+}
+.custom-swal-popup {
+  font-size: 16px;
+  max-width: 350px;
+}
+@media (max-width: 420px) {
+  .custom-swal-popup {
+    max-width: 280px; /* Giảm chiều rộng */
+    font-size: 12px;
+  }
+}
+html,
+body {
+  overflow: auto;
+  -webkit-overflow-scrolling: touch; /* Cuộn mượt trên iOS */
+}
+
+.custom-swal-icon .swal2-success-ring {
+  border-color: rgb(249, 177, 177) !important; /* Đổi màu vòng tròn */
+}
+
+.custom-swal-icon .swal2-success-line-tip,
+.custom-swal-icon .swal2-success-line-long {
+  background-color: rgb(237, 131, 131) !important; /* Đổi màu dấu check */
+}
