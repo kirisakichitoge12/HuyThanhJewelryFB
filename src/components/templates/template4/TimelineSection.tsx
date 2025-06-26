@@ -212,7 +212,7 @@ const TimelineSection: React.FC<TimeLineSectionProps> = ({
                     )}
                   </div>
                   <div
-                    className={`md:col-start-14 md:col-end-24 row-start-1 space-y-8 relative md:inline-block md:w-[729px] md:h-[517px] p-6 md:py-3 ${
+                    className={`md:col-start-14 md:col-end-24 row-start-1 space-y-8 relative md:inline-block md:w-[729px] md:h-full p-6 md:py-3 ${
                       index % 2 === 0
                         ? "md:ml-[330px] md:pl-[325px] md:pr-[56px]"
                         : "md:mr-[330px] md:pr-[325px] md:pl-[56px]"

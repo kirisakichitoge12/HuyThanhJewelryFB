@@ -145,7 +145,7 @@ const TimelineSection: React.FC<TimeLineSectionProps> = ({
           />
         </div>
 
-        <div className="relative mt-[272px] grid md:grid-cols-3 justify-center items-end md:items-center w-full gap-y-[150px] gap-x-[87px]">
+        <div className="relative mt-[140px] md:mt-[272px] grid md:grid-cols-3 justify-center items-end md:items-center w-full gap-y-[150px] gap-x-[87px]">
           <Each
             of={data}
             render={(item: TimelineProps, index: number) => (

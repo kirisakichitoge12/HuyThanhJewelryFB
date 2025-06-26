@@ -291,7 +291,10 @@ const availableValuesCoBa: Section[] = [
     },
     code: "",
   },
-  { id: 4, type: "AlbumSection", props: [], code: "" },
+  { id: 4, type: "AlbumSection", props: {
+      title: "Album ảnh cưới",
+      albums: [],
+    }, code: "" },
   {
     id: 5,
     type: "TimelineSection",
@@ -495,6 +498,7 @@ const availableValuesTemplate1: Section[] = [
     id: 6,
     type: "AlbumSection",
     props: {
+      title: "Album ảnh cưới",
       albums: [],
     },
     code: "",
@@ -574,6 +578,7 @@ const availableValuesTemplate2: Section[] = [
       day: "12",
       month: "11",
       year: "2024",
+      
     },
     code: "",
   },
@@ -614,6 +619,7 @@ const availableValuesTemplate2: Section[] = [
     id: 6,
     type: "AlbumSection",
     props: {
+      title: "Album ảnh cưới",
       albums: [],
     },
     code: "",
@@ -784,6 +790,7 @@ const availableValuesTemplate3: Section[] = [
     id: 6,
     type: "AlbumSection",
     props: {
+      title: "Album ảnh cưới",
       albums: [],
     },
     code: "",
@@ -802,6 +809,7 @@ const availableValuesTemplate3: Section[] = [
     id: 7,
     type: "TimelineSection",
     props: {
+      title: "Cột mốc",
       mainTitle: "Cột mốc",
       elements: [
         {
@@ -951,6 +959,7 @@ const availableValuesTemplate4: Section[] = [
     id: 7,
     type: "TimelineSection",
     props: {
+      title: "Cột mốc",
       mainTitle: "Cột mốc",
       elements: [
         {
@@ -979,6 +988,7 @@ const availableValuesTemplate4: Section[] = [
     id: 6,
     type: "AlbumSection",
     props: {
+      title: "Album ảnh cưới",
       albums: [],
     },
     code: "",
@@ -1187,7 +1197,10 @@ const availableValuesTemplate8: Section[] = [
     },
     code: "",
   },
-  { id: 4, type: "AlbumSection", props: [], code: "" },
+  { id: 4, type: "AlbumSection", props: {
+      title: "Album ảnh cưới",
+      albums: [],
+    }, code: "" },
   {
     id: 5,
     type: "TimelineSection",
