@@ -75,7 +75,7 @@ const swipeHandlers = useSwipeable({
     <div 
       onMouseEnter={handleDisplayEditBtn} 
       onMouseLeave={handleHiddenEditBtn}
-      className="relative max-w-9xl mx-auto py-[100px] bg-white"
+      className="relative  mx-auto py-[100px] bg-white"
     >
       {!disabled && isEdit && (
         <button 
@@ -95,14 +95,14 @@ const swipeHandlers = useSwipeable({
       <EditableField
         initialValue={title}
         name="title"
-        id={`timline-title-${id}`}
+        id={`timline-title`}
         disabled={disabled} 
-    className="text-[48px] leading-[90px] font-playfairDisplay mb-10 uppercase inline-block border-b-4 pb-2 text-center"
-    styleThemes={{
-      fontFamily: titleFont,
-      color: availableColorsCodien[style][0],
-      borderColor: '#DC9D7B',
-    }}
+        className="text-[48px] leading-[90px] font-playfairDisplay mb-10 uppercase inline-block border-none !border-b-4 pb-2 text-center"
+        styleThemes={{
+          fontFamily: titleFont,
+          color: availableColorsCodien[style][0],
+          borderColor: '#DC9D7B',
+        }}
         onChangeBlur={onSectionChange}
       />
 </div>

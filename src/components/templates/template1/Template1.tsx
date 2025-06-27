@@ -520,12 +520,15 @@ const Template1: React.FC<TemplateProps>= (props) => {
           if (themeId && userId) {
             response = await axios.get(`${API_BASE_URL}/api/widgets/${userId}/${themeId}`);
             shouldDisable = true;
+            console.error('Lỗi khi lấy dữ liệu:1');
           } else if (resolvedUserId && resolvedThemeId) {
             response = await axios.get(`${API_BASE_URL}/api/widgets/${resolvedUserId}/${resolvedThemeId}`);
             shouldDisable = true;
+            console.error('Lỗi khi lấy dữ liệu:2');
           } else if (user && id) {
             response = await axios.get(`${API_BASE_URL}/api/widgets/${user.id}/${id}`);
             shouldDisable = false;
+            console.error('Lỗi khi lấy dữ liệu:3');
           }
     
           // Bước 2: Xử lý dữ liệu từ /api/widgets
@@ -566,6 +569,7 @@ const Template1: React.FC<TemplateProps>= (props) => {
     
           // Bước 3: Nếu không có dữ liệu từ /api/widgets, gọi fetchDefaultData
           if (!hasWidgetData) {
+            console.error('Lỗi khi lấy dữ liệu:4');
             await fetchDefaultData(); // *** SỬA: Gọi fetchDefaultData nếu không có dữ liệu ***
           }
           setIsDisabled(shouldDisable);
@@ -643,7 +647,7 @@ const Template1: React.FC<TemplateProps>= (props) => {
             setSharedAlbums(albumSection.props.albums);
         }
     }, [sections]);
-
+console.log('🔄 Template1 - Rendered sections:', isDisabled);
     return (
         <section className='relative w-full h-full overflow-hidden'>
             {!isDisabled &&
@@ -746,6 +750,9 @@ const Template1: React.FC<TemplateProps>= (props) => {
                                             ...(section.type === 'Banner' && {
                                                 sharedAlbums: sharedAlbums,
                                             }),
+                                            ...(section.type === 'Invitation' && {
+                                                sharedAlbums: sharedAlbums,
+                                            }), 
                                         }}
                                         id={section.id}  
                                         titleFont={titleFont.value} 

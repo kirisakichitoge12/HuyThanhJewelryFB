@@ -11,12 +11,14 @@ import Button from '../../common/Button';
 import { formatDateTimeLocal } from '../../../utils';
 import RichImageEditor from '../../common/RichImageEditor';
 import { API_BASE_URL } from '../../../config/api.config';
+import EditableField from '../../common/EditableField';
 
 export interface TimelineProps{
     date: string;
     title: string;
     content: string;
     image?: string | File; 
+   
 };
 
 interface TimeLineSectionProps { 
@@ -25,11 +27,13 @@ interface TimeLineSectionProps {
     disabled?: boolean;
     titleFont: string;
     contentFont: string;
+    heading: string; // Assuming you have a heading prop
+    onSectionChangehd:  (name: string, newValue: string | File ) => void;
     onSectionChange:  (name: string, newValue: TimelineProps | TimelineProps[], subField?: string, i?: number) => void;
 }
 
 
-const TimelineSection: React.FC<TimeLineSectionProps> = ({ id, elements, titleFont, contentFont, disabled, onSectionChange }) => {
+const TimelineSection: React.FC<TimeLineSectionProps> = ({ id, elements, titleFont, contentFont, disabled,heading, onSectionChange,onSectionChangehd }) => {
     const [currentSection, setCurrentSection] = useState<number>(-1); 
     const [data, setData] = useState<TimelineProps[]>([]); 
     const [isEdit, setIsEdit] = useState<TimelineProps | null>(null); 
@@ -157,7 +161,16 @@ const TimelineSection: React.FC<TimeLineSectionProps> = ({ id, elements, titleFo
                     )}
                 />
                 <img src={IconRing} alt="ring icon"/>
-                <h3 className='pb-[60px] text-[18pt] mb-[6px] uppercase'>This is where our FOREVER BEGINS</h3>
+               <EditableField 
+                    id={`storySection-heading`}
+                    name='heading'
+                    initialValue={heading} // giả sử bạn đã khai báo `heading`
+                    className='pb-[60px] text-[18pt] mb-[6px] uppercase'
+                    onChangeBlur={onSectionChangehd}
+                    disabled={disabled}
+                    styleThemes={{ fontFamily: titleFont }}
+                />
+
             </section>
             {
                 isEdit !== null && (

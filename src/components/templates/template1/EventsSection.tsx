@@ -4,7 +4,6 @@ import { FaClock } from 'react-icons/fa';
 import { FaLocationPin } from 'react-icons/fa6';
 import Each from '../../../layouts/Each';
 import EventBg from '../../../assets/images/templates/template1/eventBg.webp';
-import ButtonTemplate from './ButtonTemplate';
 import LocationSearch, { SuggestionLocation } from '../../common/LocationSearch';
 import EditableField from '../../common/EditableField';
 import ComponentToolbar from '../../common/ComponentToolbar';
@@ -29,6 +28,7 @@ interface EventSectionProps{
     titleFont: string;
     contentFont: string;
     events: EventProps[];
+    Titlevents?: string;
     description: string; 
     disabled?: boolean;
     onSectionChange:  (name: string, newValue: string | File | EventProps | EventProps[], subField?: string, i?: number) => void;
@@ -59,9 +59,9 @@ const Event: React.FC<{eventData: EventProps}>  = ({eventData}) => {
                             <span>{eventData.address.description}</span>
                         </p> 
                     </div>
-                    <div className='group-hover:opacity-100 absolute bottom-0 opacity-0 flex justify-center items-center pb-10 transition-all duration-300 z-20'>
+                    {/* <div className='group-hover:opacity-100 absolute bottom-0 opacity-0 flex justify-center items-center pb-10 transition-all duration-300 z-20'>
                         <ButtonTemplate variant='secondary' borderColor='#ee8584'>Thêm vào lịch</ButtonTemplate>
-                    </div>
+                    </div> */}
                 </div>
                 <div className='border-[1px] absolute top-2 left-0 w-[100%] h-[93%] border-[#ee8584]'></div>
                 <div className='border-[1px] absolute top-0 left-2 w-[94%] md:w-[97%] h-[100%] border-[#ee8584]'></div>
@@ -73,6 +73,7 @@ const Event: React.FC<{eventData: EventProps}>  = ({eventData}) => {
 const EventsSection: React.FC<EventSectionProps> = ({
     id,
     events,
+    Titlevents,
     description,
     disabled,
     titleFont,
@@ -160,12 +161,12 @@ useEffect(() => {
                 <div className='relative h-full py-[50px] px-4 md:px-[30px] mx-[15px] text-center text-white'>
                     <div className='bg-[#ee8584] opacity-60 absolute top-0 left-0 w-full h-full z-0'></div> 
                     <EditableField 
-                        id={`events-description-${id}`}
-                        initialValue="Sự kiện cưới" 
-                        name='' 
+                        id={`Titlevents`}
+                        initialValue={Titlevents}
+                        name='Titlevents' 
                         styleThemes={{fontFamily: titleFont}}
-                        disabled={true}  
-                        onChangeBlur={() => {}}
+                        disabled={disabled}  
+                        onChangeBlur={onSectionChange}
                         className='mb-[50px] text-[62pt] font-marmelad text-white z-20'
                     />      
                     <EditableField 

@@ -11,6 +11,7 @@ import { MdKeyboardArrowDown } from 'react-icons/md';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import { API_BASE_URL } from '../../../config/api.config';
+import { CustomFile } from '../../../types';
 
 export interface InvitationProps {
   bridge?: string;
@@ -18,6 +19,8 @@ export interface InvitationProps {
   date: string;
   description: string;
   title: string;
+   albums?: File[] | string[];
+  sharedAlbums?: File[] | string[]; // Thêm prop mới để nhận dữ liệu từ AlbumSection
 }
 
 export interface InviGuestProps {
@@ -27,6 +30,7 @@ export interface InviGuestProps {
   isCeremony: boolean;
   isWedding: boolean;
   moreOne: boolean;
+ 
 }
 
 interface InvitationSectionProps extends InvitationProps {
@@ -48,6 +52,8 @@ const Invitation: React.FC<InvitationSectionProps> = ({
   title,
   disabled,
   description,
+  albums, 
+  sharedAlbums,
   onSectionChange,
   titleFont,
   contentFont,
@@ -56,6 +62,7 @@ const Invitation: React.FC<InvitationSectionProps> = ({
 }) => {
   const titleDate: string[] = ['Ngày', 'Giờ', 'Phút', 'Giây'];
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [bannerImages, setBannerImages] = useState<string[]>([EventBg, EventBg, EventBg]);
   const [isOpenDropDown, setIsOpenDropDown] = useState<boolean>(false);
   const [dataGuest, setDataGuest] = useState<InviGuestProps>({
     name: '',
@@ -65,6 +72,62 @@ const Invitation: React.FC<InvitationSectionProps> = ({
     isWedding: false,
     moreOne: false,
   });
+   const [currentIndex, setCurrentIndex] = useState(0);
+    const [isLoaded,setIsLoaded] = useState(false);
+
+    useEffect(() => {
+        // Ưu tiên sử dụng sharedAlbums (từ AlbumSection) nếu có
+        const sourceAlbums = sharedAlbums && sharedAlbums.length > 0 ? sharedAlbums : albums;
+        
+        if (sourceAlbums && sourceAlbums.length > 0) {
+            const imageUrls = sourceAlbums.map(item => {
+                if (typeof item === 'string') {
+                    // Nếu là URL đầy đủ hoặc blob URL
+                    if (item.startsWith('blob:') || item.startsWith('http') || item.startsWith('data:')) {
+                        return item;
+                    }
+                    // Nếu là đường dẫn tương đối từ server
+                    return `${API_BASE_URL}/${item}`;
+                }
+                // Nếu là CustomFile object (có preview)
+                if (item && typeof item === 'object' && 'preview' in item) {
+                    return (item as CustomFile).preview;
+                }
+                // Nếu là File object
+                if (item instanceof File) {
+                    return URL.createObjectURL(item);
+                  
+                }
+                // Fallback
+                return item;
+            });
+            
+            // Đảm bảo luôn có ít nhất 3 ảnh
+            const paddedImages = imageUrls.length < 3 
+                ? [...imageUrls, ...imageUrls.slice(0, 3 - imageUrls.length)]
+                : imageUrls;
+            
+            console.log('🎬 Banner - Source albums:', sourceAlbums);
+            console.log('🎬 Banner - Processed images:', paddedImages);
+            setBannerImages(paddedImages);
+        }
+    }, [albums, sharedAlbums]); // Thêm sharedAlbums vào dependency
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            // setIsTransitioning(true); // Chưa sử dụng
+            setTimeout(() => {
+                setCurrentIndex((prevIndex) => (prevIndex + 1) % bannerImages.length);
+                // setIsTransitioning(false); // Chưa sử dụng
+            }, 1000); // Thời gian fade out
+        }, 3000); // Thời gian hiển thị mỗi ảnh (4 giây)
+       console.log(isLoaded);
+        return () => clearInterval(interval);
+    }, [bannerImages]);
+
+    useEffect(() => {
+        setIsLoaded(false); // Reset trạng thái mỗi lần đổi ảnh
+    }, [currentIndex]);
 
   const confirmAttendance = async () => {
     try {
@@ -126,10 +189,17 @@ const Invitation: React.FC<InvitationSectionProps> = ({
   }, [isOpen]);
 
   return (
-    <section
-      style={{ background: `url(${EventBg})`, backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }}
+   <section
+     style={{
+        backgroundImage: `url(${bannerImages[currentIndex] || EventBg})`,
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: 'cover',
+      }}
+
+      // onLoad={() => setIsLoaded(true)}
       className="relative pt-[170px] pb-[130px]"
     >
+
       <div className="bg-[#ee8584] opacity-30 z-0 w-full h-full absolute top-0"></div>
       <section className="max-w-9xl mx-auto flex flex-col justify-center items-center text-white pb-[130px]">
         <EditableField
@@ -197,7 +267,7 @@ const Invitation: React.FC<InvitationSectionProps> = ({
                 className="text-[20pt] py-5 font-marmelad"
               />
               <img src={IconDeco} alt="icon deco" className="mb-5 rotate-180" />
-              <div className="flex font-marmelad w-full">
+              <div className=" font-marmelad hidden w-full">
                 <Each
                   of={[10, 15, 3, 5]}
                   render={(item: number, index: number) => (

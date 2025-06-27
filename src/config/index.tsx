@@ -18,6 +18,7 @@ import Photo4 from "../assets/images/photo4.jpeg";
 import { CarouselItem } from "../components/common/FullscreenCarousel";
 import { Section } from "../components/templates/Coba/Coba";
 
+
 const availableColorsTemplate2 = [
   ["#A12F0C", "#F4DBCE", "#FBF7F5"],
   ["#8D7326", "#F1E3C5", "#FBF7F5"],
@@ -459,6 +460,7 @@ const availableValuesTemplate1: Section[] = [
     type: "TimelineSection",
     props: {
       mainTitle: "Cột mốc",
+      heading: "This is where our forever begins",
       elements: [
         {
           date: "2024-12-21T11:00",
@@ -508,6 +510,7 @@ const availableValuesTemplate1: Section[] = [
     id: 5,
     type: "EventsSection",
     props: {
+      Titlevents: "Sự kiện cưới",
       description:
         "Tình yêu đích thực đứng về phía nhau trong những ngày tốt đẹp và sát cánh hơn trong những ngày tồi tệ.",
       events: [
