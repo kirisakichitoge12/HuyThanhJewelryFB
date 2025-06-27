@@ -17,6 +17,7 @@ import { CustomFile } from '../../../types';
 import { FiEdit } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { API_BASE_URL } from '../../../config/api.config';
+import EditableField from '../../common/EditableField';
 
 export interface AlbumProps{
   albums: File[] | string[],
@@ -24,6 +25,7 @@ export interface AlbumProps{
 
 interface AlbumSectionProps extends AlbumProps{
   id: string;
+  title: string;
   style: number;
   titleFont: string;
   disabled?: boolean;
@@ -31,7 +33,8 @@ interface AlbumSectionProps extends AlbumProps{
 }
 
 const AlbumSection: React.FC<AlbumSectionProps> = ({
-                                                     id,
+  id,
+  title,
                                                      albums,
                                                      style,
                                                      titleFont,
@@ -78,13 +81,17 @@ const AlbumSection: React.FC<AlbumSectionProps> = ({
             className='z-10 relative max-w-[1443px] mx-auto flex flex-col text-center justify-center items-center font-phudu px-[15px] pt-[55px] pb-[43px] full:py-[103px] full:px-[194px]'
         >
           <div className={"flex flex-col justify-center items-center"}>
-            <img src={decos[style]} className='mb-4'/>
-            <h1
+            <img src={decos[style]} className='mb-4'/> 
+          
+          <EditableField
+            initialValue={title}
+            name="title"
+            id={`timline-title-${id}`}
+            disabled={disabled}
                 className="text-[52px] font-pacifico mb-[45px]  "
-                style={{fontFamily: titleFont,  color: availableColorsTemplate4[style][0] }}
-            >
-              Albums ảnh cưới
-            </h1>
+                styleThemes={{fontFamily: titleFont,  color: availableColorsTemplate4[style][0] }} 
+            onChangeBlur={onSectionChange}
+          />
           </div>
           <div
               className='relative w-full md:max-w-[1054px] mb-6 lg:mb-[41px]'

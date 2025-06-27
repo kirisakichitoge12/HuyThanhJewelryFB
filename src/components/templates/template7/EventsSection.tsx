@@ -24,6 +24,8 @@ import Frame3 from "../../../assets/images/templates/template7/events/frame3.png
 
 import Each from "../../../layouts/Each";
 import EditableField from "../../common/EditableField";
+import { API_BASE_URL } from "../../../config/api.config";
+import RichImageEditor from "../../common/RichImageEditor";
 export interface EventProps {
   id: number;
   number: string;
@@ -37,7 +39,7 @@ export interface EventProps {
 
 interface EventSectionProps {
   id: string;
-  title: string;
+  image?: File | string;
   events: EventProps[];
   style: number;
   titleFont: string;
@@ -53,7 +55,7 @@ interface EventSectionProps {
 const EventsSection: React.FC<EventSectionProps> = ({
   id,
   events,
-  // title,
+  image,
   style,
   // titleFont,
   disabled = false,
@@ -135,8 +137,16 @@ const EventsSection: React.FC<EventSectionProps> = ({
         </div>
       </div>
 
-      <div className="relative md:absolute bottom-0 left-0 w-full -z-0 h-full">
-        <img className="absolute bottom-20 z-0 left-20" src={images[style]} />
+      <div className="relative md:absolute bottom-0 left-0 w-full z-30 h-full">
+         <RichImageEditor
+            id={`event-image-${id}`} 
+            name='image'
+            src={image ? `${API_BASE_URL}/${image}` : Image1} 
+            onChange={onSectionChange}
+            className="w-[278px] h-[345px] rounded-lg absolute bottom-20 left-20 border p-0 rotate-[-2.78deg]" 
+          classNameImage="rounded-xl "
+          style={{ borderColor: availableColorsTemplate7[style][0], padding: 0 }}
+          />  
         <img src={frames[style]} className="z-10 absolute bottom-0" />
       </div>
     </section>

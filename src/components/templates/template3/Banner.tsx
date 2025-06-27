@@ -11,6 +11,7 @@ import EditableField from '../../common/EditableField';
 export interface BannerProps{ 
     bride: string;
     groom: string;
+    title: string;
     image?: File;
     date: string
 }
@@ -51,13 +52,22 @@ const Banner: React.FC<BannerSectionProps> = ({id, disabled, style, onSectionCha
             <section className="max-w-9xl mx-auto " style={{ color: availableColorsCodien[style][0] }}> 
                 <div className='max-w-[837px] mx-auto p-[56px] flex flex-col justify-center items-center space-y-6 bg-white -translate-y-30 md:-translate-y-36'>
                     <img src={decos[style]} className=' h-[50]  md:h-[90px] object-cover'/>
-                    <h3 className='text-base md:text-2xl font-beVietnamPro' >Chúng tôi cưới </h3>
+                    <EditableField 
+                            initialValue={props.title} 
+                        name='title'
+                        className='text-base md:text-2xl font-beVietnamPro'
+                            id={`banner-title-${id}`} 
+                            disabled={disabled}  
+                            onChangeBlur={onSectionChange} 
+                            styleThemes={{ fontFamily: titleFont}}
+                        />   
                     <div className='text-[40px] md:text-[48px] font-playfairDisplay flex gap-5 md:flex-row flex-col justify-center items-center h-40 md:h-24' >
                         <EditableField 
                             initialValue={props.groom} 
                             name='groom'
                             id={`banner-groom-${id}`} 
                             disabled={disabled}  
+                            className='text-end'
                             onChangeBlur={onSectionChange} 
                             styleThemes={{ fontFamily: titleFont}}
                         />   
@@ -65,6 +75,7 @@ const Banner: React.FC<BannerSectionProps> = ({id, disabled, style, onSectionCha
                         <EditableField 
                             initialValue={props.bride} 
                             name='bride'
+                            className='text-start'
                             id={`banner-bridge-${id}`} 
                             disabled={disabled}  
                             onChangeBlur={onSectionChange} 

@@ -14,9 +14,11 @@ import { FiEdit } from 'react-icons/fi';
 import { availableColorsCodien } from '../../../config';
 import { useSwipeable } from 'react-swipeable';
 import { MdKeyboardArrowRight, MdOutlineKeyboardArrowLeft } from 'react-icons/md';
+import EditableField from '../../common/EditableField';
 
 export interface AlbumProps {
   albums: File[] | string[],
+  title: string;
 }
 
 interface AlbumSectionProps extends AlbumProps {
@@ -29,6 +31,7 @@ interface AlbumSectionProps extends AlbumProps {
 
 const AlbumSection: React.FC<AlbumSectionProps> = ({
   id,
+  title,
   albums, 
   titleFont,
   disabled = false,
@@ -87,17 +90,21 @@ const swipeHandlers = useSwipeable({
         </button>
       )}
 
-   <div className="flex justify-center">
-  <h1 
+   <div className="flex justify-center"> 
+        
+      <EditableField
+        initialValue={title}
+        name="title"
+        id={`timline-title-${id}`}
+        disabled={disabled} 
     className="text-[48px] leading-[90px] font-playfairDisplay mb-10 uppercase inline-block border-b-4 pb-2 text-center"
-    style={{
+    styleThemes={{
       fontFamily: titleFont,
       color: availableColorsCodien[style][0],
       borderColor: '#DC9D7B',
     }}
-  >
-    Album ảnh cưới
-  </h1>
+        onChangeBlur={onSectionChange}
+      />
 </div>
 
 

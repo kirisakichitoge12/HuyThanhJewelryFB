@@ -16,6 +16,7 @@ import TimelinesDeco3 from '../../../assets/images/templates/codien/timelinesDec
 import TimelineDeco1 from '../../../assets/images/templates/codien/timlineDeco1.png';
 import TimelineDeco2 from '../../../assets/images/templates/codien/timlineDeco2.png';
 import TimelineDeco3 from '../../../assets/images/templates/codien/timlineDeco3.png';
+import EditableField from '../../common/EditableField';
 
 export interface TimelineProps{
     date: string;
@@ -26,16 +27,17 @@ export interface TimelineProps{
 
 interface TimeLineSectionProps { 
     id: string;
+    title: string;
     elements: TimelineProps[];   
     disabled?: boolean;
     titleFont: string;
     style: number;
     contentFont: string;
-    onSectionChange:  (name: string, newValue: TimelineProps | TimelineProps[], subField?: string, i?: number) => void;
+    onSectionChange:  (name: string, newValue: TimelineProps | TimelineProps[] | string, subField?: string, i?: number) => void;
 }
 
 
-const TimelineSection: React.FC<TimeLineSectionProps> = ({ id, elements, titleFont, contentFont, disabled, style, onSectionChange }) => {
+const TimelineSection: React.FC<TimeLineSectionProps> = ({ id, title, elements, titleFont, contentFont, disabled, style, onSectionChange }) => {
     const [currentSection, setCurrentSection] = useState<number>(-1); 
     const [data, setData] = useState<TimelineProps[]>([]); 
     const [isEdit, setIsEdit] = useState<TimelineProps | null>(null); 
@@ -100,8 +102,16 @@ const TimelineSection: React.FC<TimeLineSectionProps> = ({ id, elements, titleFo
         <section className='relative w-full bg-white py-[150px]'>
             <section className='max-w-9xl mx-auto flex flex-col justify-center items-center font-beVietnamPro px-[15px]'> 
                 <div className='space-y-8 pb-14 flex flex-col justify-center items-center'>
-                    <img src={timelinesDecos[style]} className=' md:h-[102px]'/>
-                    <p className='text-[48px] uppercase' style={{ color: availableColorsCodien[style][0] }}>Cột mốc</p>
+                    <img src={timelinesDecos[style]} className=' md:h-[102px]'/>  
+                    <EditableField
+                        initialValue={title}
+                        name="title"
+                        id={`timline-title-${id}`}
+                        disabled={disabled} 
+                        className='text-[48px] uppercase'
+                        styleThemes={{ color: availableColorsCodien[style][0] }}
+                        onChangeBlur={onSectionChange}
+                    />
                 </div>
                 <div className='relative flex flex-col justify-center items-end md:items-center gap-[64px] md:gap-[161px] w-full'>                
                     <div className='w-[1px] h-full absolute top-4 left-3 md:left-[51%]' style={{ backgroundColor: availableColorsCodien[style][1] }}></div> 
