@@ -291,7 +291,10 @@ const availableValuesCoBa: Section[] = [
     },
     code: "",
   },
-  { id: 4, type: "AlbumSection", props: [], code: "" },
+  { id: 4, type: "AlbumSection",    props: {
+      albumTitle: "ALBUM ẢNH CƯỚI",
+      albums: [],
+    }, code: "" },
   {
     id: 5,
     type: "TimelineSection",
@@ -324,6 +327,7 @@ const availableValuesCoBa: Section[] = [
     id: 6,
     type: "EventsSection",
     props: {
+      eventTitle:"Sự kiện",
       events: [
         {
           id: 1,

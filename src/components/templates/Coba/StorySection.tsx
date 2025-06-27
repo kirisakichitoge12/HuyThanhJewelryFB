@@ -14,6 +14,7 @@ export interface StoryProps{
     title: string;
     description: string;
     imageStory?: File | string;
+    
 }
 
 interface StorySectionProps extends StoryProps{
@@ -50,7 +51,7 @@ const StorySection: React.FC <StorySectionProps>= ({
                             name='title' 
                             disabled={disabled}
                             onChangeBlur={onSectionChange}
-                            className="w-full bg-transparent text-title-coba-mobile md:text-tilte-coba text-3d drop-shadow-3d h-14 md:h-20"
+                            className="w-full bg-transparent text-title-coba-mobile md:text-tilte-coba text-3d drop-shadow-3d min-h-[80px]"
                             styleThemes={{ fontFamily: titleFont, color: availableColors[style][3] }}
                         />  
                         <EditableField 
@@ -65,7 +66,7 @@ const StorySection: React.FC <StorySectionProps>= ({
                     </div>
 
                     {/* Image Container with relative positioning */}
-                    <div className='relative max-w-[314px] lg:max-w-[686.34px] h-full mt-8 lg:mt-0'> 
+                    <div className='relative max-w-[362px] lg:max-w-[686.34px] h-full mt-2 lg:mt-0'> 
                         <RichImageEditor 
                             id={`imageStory-${id}`} 
                             name='imageStory'

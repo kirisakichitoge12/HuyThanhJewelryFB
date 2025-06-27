@@ -8,7 +8,7 @@ import { UserContext } from '../../context/UserContext';
 import { fetchTemplatesUser } from '../../api/template';
 import { Link, useNavigate } from 'react-router-dom';
 import Each from '../../layouts/Each';
-import { MdEdit, MdShare, MdTrendingUp } from 'react-icons/md';
+import { MdContentCopy, MdEdit,MdTrendingUp } from 'react-icons/md';
 import toast from 'react-hot-toast';
 import { API_BASE_URL } from '../../config/api.config';
 import axios from 'axios';
@@ -287,7 +287,8 @@ const Overview: React.FC<OverviewProps> = ({ onChangeActivetab, setListguest }) 
             <div className="p-4">
               <div className="space-y-2 mb-4">
                 <h2 className="text-lg font-medium">{template.template_name}</h2>
-                <Link
+               <div className="flex items-center gap-2">
+ <Link
                   to={`/theme/${template.template_id}`}
                   className="text-primary text-sm hover:underline"
                 >
@@ -295,6 +296,25 @@ const Overview: React.FC<OverviewProps> = ({ onChangeActivetab, setListguest }) 
                     ? `${pageData.url}/${template.slug}`
                     : `${pageData.url}/(Vui lòng cập nhật đường dẫn)`}
                 </Link>
+                
+               {/* Tooltip wrapper */}
+              <div className="relative group">
+                <Button
+                  onClick={() => handleCopyToClipboard(`${pageData.url}/${template.slug}`)}
+                  color="none"
+                >
+                  <MdContentCopy className="w-5 h-5" />
+                </Button>
+
+                {/* Tooltip */}
+                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2
+                                bg-primary text-white text-xs px-2 py-1 rounded 
+                                opacity-0 group-hover:opacity-100 transition-opacity duration-200
+                                whitespace-nowrap z-10">
+                  Sao chép đường dẫn
+                </div>
+              </div>
+                </div>
               </div>
 
               <div className="flex items-center justify-start mb-4 gap-3">
@@ -305,20 +325,47 @@ const Overview: React.FC<OverviewProps> = ({ onChangeActivetab, setListguest }) 
                 <span>{isPublic ? 'Công khai' : 'Riêng tư'}</span>
               </div>
               <div className="flex space-x-4 md:grid-cols-8 sm:grid-cols-8">
-                <Button onClick={() => {}} color="none">
+                {/* <Button onClick={() => {}} color="none">
                   <Link to={`/theme/${template.template_id}`}>
                     <MdEdit className="w-5 h-5" />
                   </Link>
-                </Button>
+                </Button> */}
+                <div className="relative group">
+                    <Button onClick={() => {}} color="none">
+                      <Link to={`/theme/${template.template_id}`}>
+                        <MdEdit className="w-5 h-5" />
+                      </Link>
+                    </Button>
+
+                    {/* Tooltip */}
+                    <div className="absolute left-1/2 -translate-x-1/2 top-full mt-6 
+                                    bg-primary text-white text-sm px-2 py-1 rounded 
+                                    opacity-0 group-hover:opacity-100 font-medium transition-opacity duration-200
+                                    whitespace-nowrap z-10">
+                     Sửa chi tiết thiệp
+                    </div>
+                  </div>
+
+{/* 
                 <Button
                   onClick={() => handleCopyToClipboard(`${pageData.url}/${template.slug}`)}
                   color="none"
                 >
                   <MdShare className="w-5 h-5" />
-                </Button>
-                <Button onClick={() => setShowModal(true)} color="none">
-                  <MdTrendingUp className="w-5 h-5" />
-                </Button>
+                </Button> */}
+                <div className="relative group">
+                  <Button onClick={() => setShowModal(true)} color="none">
+                    <MdTrendingUp className="w-5 h-5" />
+                  </Button>
+                    {/* Tooltip */}
+                    <div className="absolute left-1/2 -translate-x-1/2 top-full mt-6 
+                                    bg-primary text-white text-sm px-2 py-1 rounded 
+                                    opacity-0 group-hover:opacity-100 font-medium transition-opacity duration-200
+                                    whitespace-nowrap z-10">
+                     Sửa thumbnail thiệp
+                    </div>
+                  </div>
+
               </div>
             </div>
           </div>

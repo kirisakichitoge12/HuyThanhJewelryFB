@@ -131,7 +131,7 @@ const Banner: React.FC<BannerSectionProps> = ({id, disabled, onSectionChange, ti
             </div>  */}
             <section className='absolute inset-0 z-10 flex flex-col justify-center items-center text-white pointer-events-none'>
                 <div className='z-40 flex flex-col justify-center items-center pointer-events-auto'>
-                    <h2 className='uppercase text-[15pt] md:text-[18pt] mb-[15px] font-bold' style={{fontFamily: contentFont}}>Save the date</h2>
+                    <h2 className='uppercase text-[15pt] md:text-[18pt] mb-[15px] font-bold ml-2' style={{fontFamily: contentFont}}>Save the date</h2>
                     <h1 className='min-h-[55px] text-[32pt] md:text-[64pt] font-bold space-x-5 flex flex-col md:flex-row justify-center items-center'>
                         <EditableField 
                             initialValue={props.groom} 
@@ -140,8 +140,9 @@ const Banner: React.FC<BannerSectionProps> = ({id, disabled, onSectionChange, ti
                             disabled={disabled}  
                             onChangeBlur={onSectionChange} 
                             styleThemes={{ fontFamily: titleFont}}
+                            className='!mr-8'
                         />   
-                        <span className='text-2xl md:text-[36pt]'>&</span>
+                        <span className='text-2xl md:text-[36pt] !mr-14'>&</span>
                         <EditableField 
                             initialValue={props.bride} 
                             name='bride'
@@ -165,6 +166,7 @@ const Banner: React.FC<BannerSectionProps> = ({id, disabled, onSectionChange, ti
                         isBorder
                         borderColor='#f3a4a2'
                         onClick={(e) => scrollInView(e, `message-section`)}
+                      
                     >
                         Gửi lời chúc
                     </ButtonTemplate>

@@ -133,15 +133,22 @@ const TimelineSection: React.FC<TimeLineSectionProps> = ({ id, elements, titleFo
                                     </div>
                                 </div>
                                 <div className="md:col-start-14 md:col-end-24 row-start-1 md:mt-[10%] relative md:inline-block w-full z-10">
-                                    <div className='relative bg-[#ee8584] text-white w-full h-full border-[10px] border-white p-[30px] max-w-[500px] transition-all duration-1000 md:-translate-x-10 md:hover:translate-x-10'>
-                                        <div className='border-[1px] absolute top-8 left-6 w-[88%] h-[87%] border-white'></div>
-                                        <div className='border-[1px] absolute top-6 left-8 w-[84%] h-[90%] border-white'></div>
-                                        <div className='flex flex-col justify-center items-center px-[30px] pt-[30px]'>
-                                            <h3 className='text-[28px] break-words pb-5 text-center' style={{ fontFamily: titleFont }}>{item.title}</h3>
-                                            <img src={IconDeco} alt='icon deco' className='mb-[15px]'/>
-                                            <p className='text-base font-openSans max-w-[272px] text-center pb-[30px]' style={{ fontFamily: contentFont }}>{item.content}</p>
+                                   <div className="relative bg-[#ee8584] text-white w-full h-full border-[10px] border-white p-[30px] max-w-[500px] transition-all duration-1000 md:-translate-x-10 md:hover:translate-x-10">
+                                        <div className="border-[1px] absolute top-8 left-6 w-[88%] h-[87%] border-white"></div>
+                                        <div className="border-[1px] absolute top-6 left-8 w-[84%] h-[90%] border-white"></div>
+                                        <div className="flex flex-col justify-center items-center w-full px-[30px] pt-[30px]">
+                                            <h3 className="text-[28px] break-words pb-5 text-center" style={{ fontFamily: titleFont }}>
+                                            {item.title}
+                                            </h3>
+                                            <img src={IconDeco} alt="icon deco" className="mb-[15px]" />
+                                            <p
+                                            className="text-base font-openSans max-w-[272px] text-center pb-[30px] break-words"
+                                            style={{ fontFamily: contentFont, wordBreak: 'break-word', overflowWrap: 'break-word' }}
+                                            >
+                                            {item.content}
+                                            </p>
                                         </div>
-                                    </div>
+                                        </div>
                                 </div>
                                 <img src={FollowerSmall} className='absolute bottom-0 z-0 max-w-[424px] -rotate-90 -left-48'/>
                                 <img src={FollowerSmall} className='absolute top-10 z-0 max-w-[424px] rotate-90 -right-28'/>
@@ -184,36 +191,12 @@ const TimelineSection: React.FC<TimeLineSectionProps> = ({ id, elements, titleFo
                                         value={isEdit.date || ""}
                                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setIsEdit({...isEdit, date: e.target.value})} 
                                     />
-                                </div>
-                                {/* <textarea 
+                                </div>   
+                                <textarea 
                                     className='shadow px-4 outline-none py-2 rounded-lg w-full h-[200px]' 
                                     value={isEdit.content || ""}
                                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setIsEdit({...isEdit, content: e.target.value})}
-                                /> */}
-                                <textarea 
-                                        className='shadow px-4 outline-none py-2 rounded-lg w-full h-[200px]' 
-                                        value={isEdit.content || ""}
-                                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-                                            let raw = e.target.value.replace(/\n/g, ''); // Xoá tất cả xuống dòng cũ
-
-                                            // Giới hạn tối đa 200 ký tự
-                                            if (raw.length > 200) {
-                                            // Có thể thêm Toast thông báo ở đây
-                                            return;
-                                            }
-
-                                            // Cắt từng dòng 30 ký tự
-                                            const lines: string[] = [];
-                                            for (let i = 0; i < raw.length; i += 30) {
-                                            lines.push(raw.slice(i, i + 30));
-                                            }
-
-                                            const formatted = lines.join('\n');
-
-                                            setIsEdit({ ...isEdit, content: formatted });
-                                        }}
-                                        />
-
+                                />
                             </div> 
 
                             <div className='flex justify-end gap-5'>

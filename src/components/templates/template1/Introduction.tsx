@@ -67,8 +67,8 @@ const Introduction:React.FC<IntroductionSectionProps> = ({id, disabled, onSectio
             <section className='py-[70px] md:-mt-[210px] flex flex-col justify-center items-center relative max-w-9xl mx-auto font-marmelad text-[#ee8487] '>
                 <div className='relative flex flex-col md:flex-row w-full justify-center items-center'>
                     <div className='aspect-square md:w-[416px] md:h-[416px] mb-10 px-3 group'>
-                        <div className='relative bg-white w-full h-full'>
-                            <img src={imageGroom ? URL.createObjectURL(imageGroom) : typeof props.imageGroom==='string' ? `${API_BASE_URL}/${props.imageGroom}` : GroomImage} alt="GroomImage" className='w-full h-full object-top object-cover p-5 group-hover:opacity-10 transition-all duration-500'/>
+                        <div className='relative bg-white w-full h-full'    onClick={() => handleOpen({type: "contentGroom", image: imageGroom ? URL.createObjectURL(imageGroom) : typeof props.imageGroom==='string' ? `${API_BASE_URL}/${props.imageGroom}` : GroomImage, content: props.contentGroom, name: props.nameGroom})}>
+                            <img src={imageGroom ? URL.createObjectURL(imageGroom) : typeof props.imageGroom==='string' ? `${API_BASE_URL}/${props.imageGroom}` : GroomImage} alt="GroomImage" className='w-full h-full object-top object-cover p-5 group-hover:opacity-10 transition-all duration-500' />
                             <div className='absolute top-2 left-2 border-9 h-full w-full'> 
                                 <span className={`absolute top-2 left-[15px] w-[88%] h-[90%] border-y-[1px] border-[#ee8487] scale-x-0 group-hover:scale-x-100  origin-center transition-transform duration-500 ease-in-out `}></span>
                                 <span className={`absolute top-[15px] left-2 w-[92%] h-[86%] border-x-[1px] border-[#ee8487] scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-500 ease-in-out`}></span>
@@ -90,7 +90,7 @@ const Introduction:React.FC<IntroductionSectionProps> = ({id, disabled, onSectio
                     </div>
 
                     <div className='aspect-square max-w-full md:w-[416px] md:md:h-[416px] mb-10 px-3 group'>
-                        <div className='relative bg-white w-full h-full'>
+                        <div className='relative bg-white w-full h-full'   onClick={() => handleOpen({type: "contentBride", image: imageBride ? URL.createObjectURL(imageBride) : typeof props.imageBride==='string' ? `${API_BASE_URL}/${props.imageBride}` : BrideImage, content: props.contentBride, name: props.nameBride})}>
                             <img src={imageBride ? URL.createObjectURL(imageBride) : typeof props.imageBride==='string' ? `${API_BASE_URL}/${props.imageBride}` : BrideImage} alt="BrideImage" className='w-full h-full object-top object-cover p-5 group-hover:opacity-10 transition-all duration-500'/>
                             <div className='absolute top-2 left-2 border-9 h-full w-full'> 
                                 <span className={`absolute top-2 left-[15px] w-[88%] h-[90%] border-y-[1px] border-[#ee8487] scale-x-0 group-hover:scale-x-100  origin-center transition-transform duration-500 ease-in-out `}></span>

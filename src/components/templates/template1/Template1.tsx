@@ -189,15 +189,15 @@ const Template1: React.FC<TemplateProps>= (props) => {
     const context = useContext(UserContext); 
     const { user } = context;  
     const navigate = useNavigate();
-       const [showReplaceModal, setShowReplaceModal] = useState(false);
+    const [showReplaceModal, setShowReplaceModal] = useState(false);
     
-      const handleCloseReplaceModal = () => {
+    const handleCloseReplaceModal = () => {
         setShowReplaceModal(false);
       };
     const location = useLocation();
     
-      const idTemplate = useMemo(() => {
-        const path = location.pathname;
+    const idTemplate = useMemo(() => {
+    const path = location.pathname;
       
         if (path.includes('/theme/coba')) return 1;
         if (path.includes('/theme/template1')) return 2;
@@ -319,13 +319,13 @@ const Template1: React.FC<TemplateProps>= (props) => {
             } 
             // console.log(data) 
             const handlePost = async () => {
-                const response = await axios.post(`${API_BASE_URL}/api/savetemplate`, data, {
+            const response = await axios.post(`${API_BASE_URL}/api/savetemplate`, data, {
                     headers: {
                         "Content-Type": "multipart/form-data"
                     }
                 });
                 // console.log(response)
-                if(response.status === 200) {
+            if(response.status === 200) {
                     setTimeout(() => {
                         toast.success("Lưu thành công"
                             ,{
@@ -340,7 +340,7 @@ const Template1: React.FC<TemplateProps>= (props) => {
                         
                      }, 1500);
 
-                    if (response.data.template_customer_id !== templateId) {
+                if (response.data.template_customer_id !== templateId) {
                         navigate(`/theme/${response.data.template_customer_id}`);
                       }
                 }else{

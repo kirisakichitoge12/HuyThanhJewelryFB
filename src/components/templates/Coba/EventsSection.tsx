@@ -29,6 +29,7 @@ import { useConfirmModal } from '../../../hooks/modals';
 import LocationSearch, { SuggestionLocation } from '../../common/LocationSearch';
 import FormField from '../../common/FormField';
 import Button from '../../common/Button';
+import EditableField from '../../common/EditableField';
 
 export interface EventProps{ 
     id: number;
@@ -38,9 +39,11 @@ export interface EventProps{
     address: SuggestionLocation;
     dateTime: string;
     link: string;
+    eventTitle: string;
 }
 
 interface EventSectionProps{
+    eventTitle: string;
     events: EventProps[];
     style: number;
     titleFont: string;
@@ -50,6 +53,7 @@ interface EventSectionProps{
 
 const EventsSection: React.FC<EventSectionProps> = ({
     events,
+    eventTitle,
     style,
     titleFont,
     disabled = false, 
@@ -152,11 +156,16 @@ const EventsSection: React.FC<EventSectionProps> = ({
             <img src={framesRight[style]} className='hidden lg:block absolute right-0 max-w-[261px] h-full'/>
             <section className='z-10 relative max-w-[1443px] mx-auto font-phudu overflow-hidden'>
                 <div className='pt-[64px] pb-[70px] px-[15px] md:px-0 md:pt-[106px] md:pb-[159px] space-y-[49px] text-center'>
-                    <h1 className="text-title-coba-mobile md:text-tilte-coba text-3d drop-shadow-3d tracking-wide uppercase"
-                        style={{ fontFamily: titleFont, color: availableColors[style][4] }}    
-                    > 
-                        Sự kiện
-                    </h1>
+                    <EditableField 
+                        id="event-title"
+                        initialValue={eventTitle}
+                        name="eventTitle"
+                        disabled={disabled}
+                        onChangeBlur={onSectionChange}
+                        className="text-title-coba-mobile md:text-tilte-coba text-3d drop-shadow-3d tracking-wide uppercase"
+                        styleThemes={{ fontFamily: titleFont, color: availableColors[style][4] }}
+                        />
+
                     <div className='flex flex-col justify-center items-center max-w-[620px] w-full mx-auto'>
                         <Each 
                             of={eventsSection}

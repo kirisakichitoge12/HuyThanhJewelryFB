@@ -231,14 +231,14 @@ const CardTemplates: React.FC = () => {
                             }
                         /> 
                     </div>
-                    <div className='flex justify-center items-center mt-[88px]'>
+                    {/* <div className='flex justify-center items-center mt-[88px]'>
                         <Button 
                             style={{ width: '293px' }} 
                             onClick={() => {}}
                         >
                             Xem thêm
                         </Button>
-                    </div>
+                    </div> */}
                 </section>
                 
             </section>

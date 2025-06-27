@@ -16,8 +16,10 @@ import { CustomFile } from '../../../types';
 import { FiEdit } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { API_BASE_URL } from '../../../config/api.config';
+import EditableField from '../../common/EditableField';
 
 export interface AlbumProps{
+    albumTitle: string;
     albums: File[] | string[],
 }
 
@@ -34,6 +36,7 @@ const AlbumSection: React.FC<AlbumSectionProps> = ({
     albums,
     style,
     titleFont,
+    albumTitle,
     disabled = false,
     onSectionChange
 }) => {
@@ -76,12 +79,16 @@ const AlbumSection: React.FC<AlbumSectionProps> = ({
                 onClick={(event) => event.stopPropagation()} 
                 className='z-10 relative max-w-[1443px] mx-auto flex flex-col text-center justify-center items-center font-phudu px-[15px] pt-[55px] pb-[43px] full:py-[103px] full:px-[194px]'
             >
-                <h1 
-                    className="text-title-coba-mobile mb-10 full:mb-[52px] md:text-tilte-coba text-3d drop-shadow-3d tracking-wide uppercase" 
-                    style={{fontFamily: titleFont,  color: availableColors[style][4] }}
-                > 
-                    ALBUM ẢNH CƯỚI
-                </h1>  
+               <EditableField 
+                    id="album-title"
+                    initialValue={albumTitle}
+                    name="albumTitle"
+                    disabled={disabled}
+                    onChangeBlur={onSectionChange}
+                    className="text-title-coba-mobile mb-10 full:mb-[52px] md:text-tilte-coba text-3d drop-shadow-3d tracking-wide uppercase"
+                    styleThemes={{ fontFamily: titleFont, color: availableColors[style][4] }}
+                    />
+
                 <div  
                     className='relative w-full md:max-w-[1054px] mb-6 lg:mb-[41px]'
                 >

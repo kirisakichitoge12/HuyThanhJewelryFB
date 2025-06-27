@@ -205,7 +205,7 @@ const swipeHandlers = useSwipeable({
         </div>
       )}
 
-      <div className=" hidden mt-5 md:flex justify-center">
+      <div className="hidden mt-5 md:flex justify-center">
         {!showAllPhotos && (
           <button
             onClick={() => setShowAllPhotos(true)}

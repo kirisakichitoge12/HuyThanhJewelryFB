@@ -122,7 +122,7 @@ const Navbar: React.FC = () => {
                 <Each 
                     of={listMenuUser}
                     render={(item: BaseListMenu) => 
-                        <Link to={item.path} className={`${isActivePath(item.path)} text-base hover:opacity-80`}>
+                        <Link  onClick={() => setIsOpen(!isOpen)} to={item.path} className={`${isActivePath(item.path)} text-base hover:opacity-80`}>
                             {item.name}
                         </Link>
                     }
